@@ -10,8 +10,20 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
+firebase.auth().onAuthStateChanged(function (user) {
+  /*const notLoggedIn = document.querySelector(".loggedOut");
+  const loggedIn = document.querySelector(".loggedIn");
+  const signUp = document.querySelector(".signUp");*/
+  const authBlock = document.querySelector("#auth");
+  if (!user) {
+    console.log("ok");
+    authBlock.classList = "auth--authenticated";
+  } else {
+    authBlock.classList.remove = "auth--anonymous";
+  }
+})
+
 const loginForm = document.querySelector("#login");
-console.log('ok')
 loginForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const email = document.querySelector("#email_field").value;
