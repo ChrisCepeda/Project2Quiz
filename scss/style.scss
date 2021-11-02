@@ -3,3 +3,63 @@
   margin: 0;
   padding: 0;
 }
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: pink;
+  height: 700px;
+  width: 100%;
+}
+
+#auth {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.quiz-container {
+  width: 50vw;
+  height: 50vh;
+  background-color: orange;
+  margin: 5em;
+  display: flex;
+  .question {
+    height: 50%;
+    text-align: center;
+  }
+  .answers-container {
+    height: 50%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+  }
+}
+
+//.container {
+//  //display: flex;
+//  background-color: rgb(247, 212, 218);
+//}
+
+.signUp,
+.logIn,
+.logOut,
+.quiz-container {
+  display: none;
+}
+
+.auth--anonymous {
+  .signUp,
+  .logIn {
+    display: block;
+  }
+}
+
+.auth--authenticated {
+  .logOut,
+  .quiz-container {
+    display: block;
+  }
+}

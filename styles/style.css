@@ -1,6 +1,58 @@
 * {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: pink;
+  height: 700px;
+  width: 100%;
+}
+
+#auth {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.quiz-container {
+  width: 50vw;
+  height: 50vh;
+  background-color: orange;
+  margin: 5em;
+  display: flex;
+}
+.quiz-container .question {
+  height: 50%;
+  text-align: center;
+}
+.quiz-container .answers-container {
+  height: 50%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-items: center;
+}
+
+.signUp,
+.logIn,
+.logOut,
+.quiz-container {
+  display: none;
+}
+
+.auth--anonymous .signUp,
+.auth--anonymous .logIn {
+  display: block;
+}
+
+.auth--authenticated .logOut,
+.auth--authenticated .quiz-container {
+  display: block;
+}
+
+/*# sourceMappingURL=style.css.map */

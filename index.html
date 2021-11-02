@@ -5,13 +5,53 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./styles/style.css">
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-auth.js"></script>
+  <link rel="stylesheet" type="text/css" href="./styles/style.css">
   <title>Project-2-Quiz</title>
 </head>
 
 <body>
-  <h1>Hello World!</h1>
-  <script src="./scripts/script.js"></script>
+  <h1>The Best Music Quiz EVER</h1>
+  <div id="auth" class="auth--anonymous"> 
+    <div class="signUp">
+      <h2>Become a member</h2>
+      <form class="newMember-form">
+        <input type="text" class="email-signUp" placeholder="email" />
+        <input type="password" class="password-signUp" placeholder="password" />
+        <button class="submit-btn-signUp" type="submit">Submit</button>
+      </form>
+    </div>
+
+    <div class="logIn">
+      <h2>Please log in:</h2>
+      <form class="logIn-form">
+        <input type="text" class="email" placeholder="email" />
+        <input type="password" class="password" placeholder="password" />
+        <button class="submit-btn" type="submit">Submit</button>
+      </form>
+    </div>
+
+    <div class="logOut">
+      <h2>You are logged in.</h2>
+      <button class="logOut-btn">Log out</button>
+    </div>
+
+    <div class="quiz-container">
+      <div class="question">
+        Question. 1
+      </div>
+      <div class="answers-container">
+        <div class="answer1">1</div>
+        <div class="answer2">2</div>
+        <div class="answer3">3</div>
+        <div class="answer4">4</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./scripts/script.js" type="module"></script>
 </body>
 
 </html>
