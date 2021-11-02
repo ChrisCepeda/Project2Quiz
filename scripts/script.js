@@ -10,35 +10,44 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-firebase.auth().onAuthStateChanged(function (user) {
-  /*const notLoggedIn = document.querySelector(".loggedOut");
-  const loggedIn = document.querySelector(".loggedIn");
-  const signUp = document.querySelector(".signUp");*/
-  const authBlock = document.querySelector("#auth");
-  if (user) {
-    authBlock.classList = "auth--authenticated";
-  } else {
-    authBlock.classList = "auth--anonymous";
-  }
-});
-
-const logInForm = document.querySelector(".logIn-form");
-logInForm.addEventListener("submit", (e) => {
+const loginForm = document.querySelector("#login");
+console.log('ok')
+loginForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  const email = document.querySelector(".email").value;
-  const password = document.querySelector(".password").value;
-  logInForm.reset();
-  login(email, password);
+  const email = document.querySelector("#email_field").value;
+  const password = document.querySelector("#password_field").value;
+  console.log(email, password);
+  loginForm.reset();
+  logInUser(email, password);
 });
 
-const newMemberForm = document.querySelector(".newMember-form");
+function logInUser(email, password) {
+  //console.log(email, password);
+  firebase
+    .auth()
+    .signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      // Signed in
+      var user = userCredential.user;
+      //console.log(user);
+      alert("welcome!");
+      // ...
+    })
+    .catch((error) => {
+      //var errorCode = error.code;
+      var errorMessage = error.message;
+      alert(errorMessage);
+    });
+}
+
+const newMemberForm = document.querySelector("#register");
 newMemberForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  const signUpEmail = document.querySelector(".email-signUp").value;
-  const signUpPassword = document.querySelector(".password-signUp").value;
+  const signUpEmail = document.querySelector("#email_signup").value;
+  const signUpPassword = document.querySelector("#password_signup").value;
   newMemberForm.reset();
   newMember(signUpEmail, signUpPassword);
-});
+}); 
 
 function newMember(signUpEmail, signUpPassword) {
   firebase
@@ -59,7 +68,58 @@ function newMember(signUpEmail, signUpPassword) {
     });
 }
 
-function login(email, password) {
+/*
+firebase.auth().onAuthStateChanged(function (user) {
+  /*const notLoggedIn = document.querySelector(".loggedOut");
+  const loggedIn = document.querySelector(".loggedIn");
+  const signUp = document.querySelector(".signUp");
+  const authBlock = document.querySelector("#auth");
+  if (user) {
+    authBlock.classList = "auth--authenticated";
+  } else {
+    authBlock.classList = "auth--anonymous";
+  }
+})
+
+const submitBtn = document.querySelector(".submit-btn");
+console.log('ok')
+submitBtn.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = document.querySelector("#email_field").value;
+  const password = document.querySelector("#password_field").value;
+  submitBtn.reset();
+  loginLogged(email, password);
+});
+
+const newMemberForm = document.querySelector(".newMember-form");
+newMemberForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const signUpEmail = document.querySelector(".email-signUp").value;
+  const signUpPassword = document.querySelector(".password-signUp").value;
+  newMemberForm.reset();
+  newMember(signUpEmail, signUpPassword);
+}); 
+
+function newMember(signUpEmail, signUpPassword) {
+  firebase
+    .auth()
+    .createUserWithEmailAndPassword(signUpEmail, signUpPassword)
+    .then((userCredential) => {
+      // Signed in
+      alert("welcome new member");
+      var user = userCredential;
+      console.log(user);
+      // ...
+    })
+    .catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      alert(errorMessage);
+      // ..
+    });
+}
+
+function loginLogged(email, password) {
   console.log(email, password);
   firebase
     .auth()
@@ -126,5 +186,4 @@ const questions = [
       { answer: 1 },
        ],
   },
-];
-̣
+]; */
