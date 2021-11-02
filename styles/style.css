@@ -126,7 +126,7 @@ span {
 .auth--authenticated .button-box,
 .auth--authenticated .social-icons,
 .auth--authenticated .input-group {
-  display: hidden;
+  display: none;
 }
 
 .auth--anonymous .button-box,

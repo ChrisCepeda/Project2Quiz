@@ -9,11 +9,13 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+const authBlock = document.querySelector("#auth");
+const logOutBtn = document.querySelector(".logOut-btn");
 
-firebase.auth().onAuthStateChanged(function (user) {
+/*firebase.auth().onAuthStateChanged(function (user) {
   /*const notLoggedIn = document.querySelector(".loggedOut");
   const loggedIn = document.querySelector(".loggedIn");
-  const signUp = document.querySelector(".signUp");*/
+  const signUp = document.querySelector(".signUp");
   const authBlock = document.querySelector("#auth");
   if (!user) {
     console.log("ok");
@@ -21,7 +23,7 @@ firebase.auth().onAuthStateChanged(function (user) {
   } else {
     authBlock.classList.remove = "auth--anonymous";
   }
-})
+}) */ 
 
 const loginForm = document.querySelector("#login");
 loginForm.addEventListener("submit", (e) => {
@@ -41,8 +43,9 @@ function logInUser(email, password) {
     .then((userCredential) => {
       // Signed in
       var user = userCredential.user;
-      //console.log(user);
+      console.log("now logged in");
       alert("welcome!");
+      authBlock.classList = "auth--authenticated";
       // ...
     })
     .catch((error) => {
@@ -68,8 +71,8 @@ function newMember(signUpEmail, signUpPassword) {
     .then((userCredential) => {
       // Signed in
       alert("welcome new member");
-      var user = userCredential;
-      console.log(user);
+      //var user = userCredential;
+      authBlock.classList = "auth--authenticated";
       // ...
     })
     .catch((error) => {
@@ -80,77 +83,6 @@ function newMember(signUpEmail, signUpPassword) {
     });
 }
 
-/*
-firebase.auth().onAuthStateChanged(function (user) {
-  /*const notLoggedIn = document.querySelector(".loggedOut");
-  const loggedIn = document.querySelector(".loggedIn");
-  const signUp = document.querySelector(".signUp");
-  const authBlock = document.querySelector("#auth");
-  if (user) {
-    authBlock.classList = "auth--authenticated";
-  } else {
-    authBlock.classList = "auth--anonymous";
-  }
-})
-
-const submitBtn = document.querySelector(".submit-btn");
-console.log('ok')
-submitBtn.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const email = document.querySelector("#email_field").value;
-  const password = document.querySelector("#password_field").value;
-  submitBtn.reset();
-  loginLogged(email, password);
-});
-
-const newMemberForm = document.querySelector(".newMember-form");
-newMemberForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const signUpEmail = document.querySelector(".email-signUp").value;
-  const signUpPassword = document.querySelector(".password-signUp").value;
-  newMemberForm.reset();
-  newMember(signUpEmail, signUpPassword);
-}); 
-
-function newMember(signUpEmail, signUpPassword) {
-  firebase
-    .auth()
-    .createUserWithEmailAndPassword(signUpEmail, signUpPassword)
-    .then((userCredential) => {
-      // Signed in
-      alert("welcome new member");
-      var user = userCredential;
-      console.log(user);
-      // ...
-    })
-    .catch((error) => {
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      alert(errorMessage);
-      // ..
-    });
-}
-
-function loginLogged(email, password) {
-  console.log(email, password);
-  firebase
-    .auth()
-    .signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // Signed in
-      var user = userCredential.user;
-      //console.log(user);
-      alert("welcome!");
-      // ...
-    })
-    .catch((error) => {
-      //var errorCode = error.code;
-      var errorMessage = error.message;
-      alert(errorMessage);
-    });
-}
-
-const logOutBtn = document.querySelector(".logOut-btn");
 logOutBtn.addEventListener("click", logOut);
 
 function logOut() {
@@ -161,11 +93,14 @@ function logOut() {
     .then(() => {
       // Sign-out successful.
       alert("goodbye!");
+      authBlock.classList = "auth--anonymous";
     })
     .catch((error) => {
       // An error happened.
     });
 }
+
+/*
 
 const questions = [
   {
