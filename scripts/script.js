@@ -14,15 +14,15 @@ firebase.initializeApp(firebaseConfig);
 const authBlock = document.querySelector("#auth");
 const logOutBtn = document.querySelector(".logOut-btn");
 
-/*firebase.auth().onAuthStateChanged(function (user) {              //supposed to register any auth change but is bugging. 
+firebase.auth().onAuthStateChanged(function (user) {              
   const authBlock = document.querySelector("#auth");
-  if (!user) {
+  if (user) {
     console.log("ok");
     authBlock.classList = "auth--authenticated";
   } else {
-    authBlock.classList.remove = "auth--anonymous";
+    authBlock.classList = "auth--anonymous";
   }
-}) */
+}) 
 
 const loginForm = document.querySelector("#login");
 loginForm.addEventListener("submit", (e) => {
@@ -44,8 +44,6 @@ function logInUser(email, password) {
       //var user = userCredential.user;
       console.log("now logged in");
       //alert("welcome!");
-      authBlock.classList = "auth--authenticated";  //take away when .onAuthStateChanged works
-      // ...
     })
     .catch((error) => {
       //var errorCode = error.code;
@@ -71,8 +69,6 @@ function newMember(signUpEmail, signUpPassword) {
       // Signed in
       //alert("welcome new member");
       //var user = userCredential;
-      authBlock.classList = "auth--authenticated"; //take away when .onAuthStateChanged works
-      // ...
     })
     .catch((error) => {
       //var errorCode = error.code;
@@ -91,7 +87,6 @@ function logOut() {
     .then(() => {
       // Sign-out successful.
       //alert("goodbye!");
-      authBlock.classList = "auth--anonymous"; //take away when .onAuthStateChanged works
     })
     .catch((error) => {
       // An error happened.
