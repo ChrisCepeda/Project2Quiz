@@ -29,7 +29,7 @@
           <input type="text" class="input-field" placeholder="Email Id" required id="email_field">
           <input type="password" class="input-field" placeholder="Enter Password" required id="password_field"><br>
           <input type="checkbox" class="check-box">
-          <span>Remember Password</span>
+          <span class="rememberPassword">Remember Password</span>
           <button type="submit" class="submit-btn">Log In</button>
         </form>
         <form id="register" class="input-group">
@@ -44,13 +44,11 @@
             <button class="logOut-btn">LOG OUT</button>
             <button class="startGame-btn">Start quiz</button>
             <button class="nextQuestion-btn">Next question</button>
-            <div class="score-div">
-              <h1 class="score"></h1>
-            </div>
+            <div class="score-div"></div>
           </div>
+          <div id="highscore"></div>
           <div class="quiz-container">
             <div class="question">
-
             </div>
             <div class="answers-container">
             </div>
