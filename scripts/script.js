@@ -1,3 +1,5 @@
+// Firebase auth
+
 const firebaseConfig = {
   apiKey: "AIzaSyCOdgM7ZJOumY9SU3Jxm5k6qSojlLaGCdg",
   authDomain: "hitest-1cac8.firebaseapp.com",
@@ -12,7 +14,7 @@ firebase.initializeApp(firebaseConfig);
 const authBlock = document.querySelector("#auth");
 const logOutBtn = document.querySelector(".logOut-btn");
 
-/*firebase.auth().onAuthStateChanged(function (user) {
+/*firebase.auth().onAuthStateChanged(function (user) {              //supposed to register any auth change but is bugging. 
   /*const notLoggedIn = document.querySelector(".loggedOut");
   const loggedIn = document.querySelector(".loggedIn");
   const signUp = document.querySelector(".signUp");
@@ -23,7 +25,7 @@ const logOutBtn = document.querySelector(".logOut-btn");
   } else {
     authBlock.classList.remove = "auth--anonymous";
   }
-}) */ 
+}) */
 
 const loginForm = document.querySelector("#login");
 loginForm.addEventListener("submit", (e) => {
@@ -42,10 +44,10 @@ function logInUser(email, password) {
     .signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       // Signed in
-      var user = userCredential.user;
+      //var user = userCredential.user;
       console.log("now logged in");
-      alert("welcome!");
-      authBlock.classList = "auth--authenticated";
+      //alert("welcome!");
+      authBlock.classList = "auth--authenticated";  //take away when .onAuthStateChanged works
       // ...
     })
     .catch((error) => {
@@ -62,7 +64,7 @@ newMemberForm.addEventListener("submit", (e) => {
   const signUpPassword = document.querySelector("#password_signup").value;
   newMemberForm.reset();
   newMember(signUpEmail, signUpPassword);
-}); 
+});
 
 function newMember(signUpEmail, signUpPassword) {
   firebase
@@ -70,16 +72,15 @@ function newMember(signUpEmail, signUpPassword) {
     .createUserWithEmailAndPassword(signUpEmail, signUpPassword)
     .then((userCredential) => {
       // Signed in
-      alert("welcome new member");
+      //alert("welcome new member");
       //var user = userCredential;
-      authBlock.classList = "auth--authenticated";
+      authBlock.classList = "auth--authenticated"; //take away when .onAuthStateChanged works
       // ...
     })
     .catch((error) => {
-      var errorCode = error.code;
+      //var errorCode = error.code;
       var errorMessage = error.message;
       alert(errorMessage);
-      // ..
     });
 }
 
@@ -92,25 +93,144 @@ function logOut() {
     .signOut()
     .then(() => {
       // Sign-out successful.
-      alert("goodbye!");
-      authBlock.classList = "auth--anonymous";
+      //alert("goodbye!");
+      authBlock.classList = "auth--anonymous"; //take away when .onAuthStateChanged works
     })
     .catch((error) => {
       // An error happened.
     });
 }
 
+
+//QUIZ CODE BELOW
+
+const questionElement = document.querySelector(".question");
+const answersElement = document.querySelector(".answers-container");
+const startGameBtn = document.querySelector(".startGame-btn");
+const nextQuestionBtn = document.querySelector(".nextQuestion-btn");
+const scoreContainer = document.querySelector(".score-div");
+let shuffledQuestions, currentQuestionIndex;
+nextQuestionBtn.classList = "hide";
+let score = 0;
+
+startGameBtn.addEventListener("click", startGame);
+
+function startGame() {
+  score = 0;
+  scoreContainer.innerText = "score: ", score;
+  //console.log("Game started"); 
+  startGameBtn.classList = "hide";
+  shuffledQuestions = questions.sort(() => Math.random - 0.5); // supposed to randomize questions but not working? better to do like in quiz?
+  currentQuestionIndex = 0;
+  setNextQuestion();
+}
+
+function setNextQuestion() {
+  resetState();
+  showQuestion(shuffledQuestions[currentQuestionIndex]);
+}
+
+function showQuestion(question) {
+  questionElement.innerText = question.question;
+  question.answers.forEach((answer) => {
+    const button = document.createElement("button");
+    button.setAttribute('class', 'answerButton'); // setting class so i can select these buttons later
+    button.innerText = answer.text;
+    if (answer.correct) {
+      button.dataset.correct = answer.correct; //giving correct answer alt dataset of correct
+    }
+    button.addEventListener("click", selectAnswer);
+    answersElement.appendChild(button);
+  });
+}
+
+function resetState() {
+  nextQuestionBtn.classList.add("hide");
+  while (answersElement.firstChild) { // = when there is a question showing
+    answersElement.removeChild(answersElement.firstChild);  //how come all answers disapperas when targetting only first child?
+  }
+}
+
+function selectAnswer(e) {
+  const selectedButton = e.target;
+  const correct = selectedButton.dataset.correct; //selecting answer w dataset of correct
+  setStatusClass(correct);
+  Array.from(answersElement).forEach((button) => {
+    setStatusClass(button, button.dataset.correct);
+  });
+  if (shuffledQuestions.length > currentQuestionIndex + 1) {  //if there are questions left
+    nextQuestionBtn.classList.remove("hide");
+  } else {
+    scoreContainer.innerText = `Good job! You scored ${score} points!`;
+    // make function to store score
+    startGameBtn.innerText = "Restart";
+    startGameBtn.classList.remove("hide");
+  }
+}
+
+function setStatusClass(correct) {
+  if (correct) {
+    //console.log('right')
+    score++
+    scoreContainer.innerText = "score: " + score;
+    const answerButtons = document.querySelectorAll('.answerButton')  //make a function of this for reusability
+    for (const button of answerButtons) {
+      button.removeEventListener("click", selectAnswer)
+      
+    }
+  } else {
+    //console.log("wrong");
+    const answerButtons = document.querySelectorAll('.answerButton')  //make a function of this for reusability
+    for (const button of answerButtons) {
+      button.removeEventListener("click", selectAnswer)
+   }
+  }
+}
+
+nextQuestionBtn.addEventListener("click", () => {
+  currentQuestionIndex++;
+  setNextQuestion();
+});
+
+const questions = [  //probably more elegant to store in seperate json?
+  {
+    question: "2+2 = ?",
+    answers: [
+      { text: "2", correct: false },
+      { text: "4", correct: true },
+    ],
+  },
+  {
+    question: "1+2 = ?",
+    answers: [
+      { text: "3", correct: true },
+      { text: "4", correct: false },
+    ],
+  },
+  {
+    question: "2+3 = ?",
+    answers: [
+      { text: "5", correct: true },
+      { text: "4", correct: false },
+    ],
+  },
+  {
+    question: "3+3 = ?",
+    answers: [
+      { text: "5", correct: false },
+      { text: "6", correct: true },
+    ],
+  },
+];
+
 /*
 
 const questions = [
   {
-    question: "Question 1",
+    question: "2+2 = ?",
     answers: [
-      { text1: 1 },
-      { text2: 2 },
-      { text3: 3 },
-      { text4: 4 },
-      { answer: 1 },
+      { text: "2", correct: true" },
+      { text: "4", correct = "false" }
     ],
   },
   {

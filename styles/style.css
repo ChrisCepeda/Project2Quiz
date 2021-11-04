@@ -137,6 +137,13 @@ span {
 .auth--anonymous .logOut {
   display: none;
 }
+.auth--anonymous .loggedIncontainer {
+  display: none;
+}
+
+.hide {
+  display: none;
+}
 
 /*.auth--authenticated {
   .input-group {

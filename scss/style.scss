@@ -125,6 +125,13 @@ span {
   .logOut {
     display: none;
   }
+  .loggedIncontainer {
+    display: none;
+  }
+}
+
+.hide {
+  display: none;
 }
 
 /*.auth--authenticated {

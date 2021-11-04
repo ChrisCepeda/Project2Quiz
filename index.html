@@ -39,15 +39,29 @@
           <span>I agree to the terms & conditions</span>
           <button type="submit" class="submit-btn">Register</button>
         </form> 
-        <div class="logOut">
-          <button class="logOut-btn">LOG OUT</button>
-        </div>
+        <div class="loggedIncontainer">
+          <div class="logOut">
+            <button class="logOut-btn">LOG OUT</button>
+            <button class="startGame-btn">Start quiz</button>
+            <button class="nextQuestion-btn">Next question</button>
+            <div class="score-div">
+              <h1 class="score"></h1>
+            </div>
+          </div>
+          <div class="quiz-container">
+            <div class="question">
+
+            </div>
+            <div class="answers-container">
+            </div>
+          </div>
+        </div> 
       </div>
     </div>
   </div>
 
 
-  <script>
+  <script> //this should be moved to script.js
     var x = document.getElementById("login");
     var y = document.getElementById("register");
     var z = document.getElementById("btn");
@@ -66,49 +80,3 @@
 </body>
 
 </html>
-
-
-
-
-
-<!-- <title>Project-2-Quiz</title>
-</head>
-<script src="./scripts/script.js" type="module"></script>
-<body>
-  <h1>The Best Music Quiz EVER</h1>
-  <div id="auth" class="auth--anonymous"> 
-    <div class="signUp">
-      <h2>Become a member</h2>
-      <form class="newMember-form">
-        <input type="text" class="email-signUp" placeholder="email" />
-        <input type="password" class="password-signUp" placeholder="password" />
-        <button class="submit-btn-signUp" type="submit">Submit</button>
-      </form>
-    </div>
-
-    <div class="logIn">
-      <h2>Please log in:</h2>
-      <form class="logIn-form">
-        <input type="text" class="email" placeholder="email" />
-        <input type="password" class="password" placeholder="password" />
-        <button class="submit-btn" type="submit">Submit</button>
-      </form>
-    </div>
-
-    <div class="logOut">
-      <h2>You are logged in.</h2>
-      <button class="logOut-btn">Log out</button>
-    </div>
-
-    <div class="quiz-container">
-      <div class="question">
-        Question. 1
-      </div>
-      <div class="answers-container">
-        <div class="answer1">1</div>
-        <div class="answer2">2</div>
-        <div class="answer3">3</div>
-        <div class="answer4">4</div>
-      </div>
-    </div>
-  </div> -->
