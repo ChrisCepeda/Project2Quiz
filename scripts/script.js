@@ -18,6 +18,7 @@ const authBlock = document.querySelector("#auth");
 const logOutBtn = document.querySelector(".logOut-btn");
 
 firebase.auth().onAuthStateChanged(function (user) {
+  //register if user is logged in/out and hides/shows different content depending on that
   const authBlock = document.querySelector("#auth");
   if (user) {
     authBlock.classList = "auth--authenticated";
@@ -26,7 +27,21 @@ firebase.auth().onAuthStateChanged(function (user) {
   }
 });
 
-const loginForm = document.querySelector("#login");
+function resetGame() {
+  //to get the right button to show/hide
+  if (startGameBtn.classList.contains("hide")) {
+    startGameBtn.innerText = "Start quiz";
+    startGameBtn.classList.remove("hide");
+  }
+  questionElement.classList = "hide";
+  answersElement.classList = "hide";
+  scoreContainer.classList = "hide";
+  nextQuestionBtn.classList = "hide";
+  highscoreContainer.classList = "hide";
+  highscoreContainer.innerText = "";  //clear the highscore between games so it doesnt print same score multiple times
+}
+
+const loginForm = document.querySelector("#login"); //grab information for login function
 loginForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const email = document.querySelector("#email_field").value;
@@ -37,6 +52,7 @@ loginForm.addEventListener("submit", (e) => {
 });
 
 function logInUser(email, password) {
+  //user login
   firebase
     .auth()
     .signInWithEmailAndPassword(email, password)
@@ -49,16 +65,10 @@ function logInUser(email, password) {
       var errorMessage = error.message;
       alert(errorMessage);
     });
-  if (startGameBtn.classList.contains("hide")) {
-    startGameBtn.innerText = "Start quiz";
-    startGameBtn.classList.remove("hide");
-  }
-  questionElement.classList = "hide";
-  answersElement.classList = "hide";
-  scoreContainer.classList = "hide";
+  resetGame();
 }
 
-const newMemberForm = document.querySelector("#register");
+const newMemberForm = document.querySelector("#register"); // grab information for member reg.
 newMemberForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const signUpEmail = document.querySelector("#email_signup").value;
@@ -68,6 +78,7 @@ newMemberForm.addEventListener("submit", (e) => {
 });
 
 function newMember(signUpEmail, signUpPassword) {
+  //function new member reg.
   firebase
     .auth()
     .createUserWithEmailAndPassword(signUpEmail, signUpPassword)
@@ -80,26 +91,16 @@ function newMember(signUpEmail, signUpPassword) {
       var errorMessage = error.message;
       alert(errorMessage);
     });
-  if (startGameBtn.classList.contains("hide")) {
-    startGameBtn.innerText = "Start quiz";
-    startGameBtn.classList.remove("hide");
-  }
-  questionElement.classList = "hide";
-  answersElement.classList = "hide";
-  scoreContainer.classList = "hide";
+  resetGame();
 }
 
-logOutBtn.addEventListener("click", logOut);
-
+logOutBtn.addEventListener("click", logOut); //user log out
 function logOut() {
   firebase
     .auth()
     .signOut()
     .then(() => {
       // Sign-out successful.
-      //highscoreContainer.classList = 'hide';
-      //scoreContainer.classList = 'hide';
-      //startGameBtn.innerText = "Start quiz";
     })
     .catch((error) => {
       // An error happened.
@@ -115,19 +116,15 @@ const nextQuestionBtn = document.querySelector(".nextQuestion-btn");
 const scoreContainer = document.querySelector(".score-div");
 const highscoreContainer = document.querySelector("#highscore");
 let shuffledQuestions, currentQuestionIndex;
-nextQuestionBtn.classList = "hide";
-//highscoreContainer.classList = "hide";
 let score = 0;
 
-startGameBtn.addEventListener("click", startGame);
-
+startGameBtn.addEventListener("click", startGame); //start the game
 function startGame() {
+  resetGame();
   score = 0;
-  (scoreContainer.innerText = "score: "), score;
+  (scoreContainer.innerText = "score: "), score; //why brackets appearing when formatting??
   scoreContainer.classList.remove("hide");
-  //console.log("Game started");
   startGameBtn.classList = "hide";
-  highscoreContainer.classList = "hide";
   questionElement.classList.remove("hide");
   answersElement.classList.remove("hide");
   shuffledQuestions = questions.sort(() => Math.random - 0.5); // supposed to randomize questions but not working? better to do like in quiz?
@@ -136,95 +133,61 @@ function startGame() {
 }
 
 function setNextQuestion() {
-  resetState();
+  lockBoard();
   showQuestion(shuffledQuestions[currentQuestionIndex]);
 }
 
 function showQuestion(question) {
-  questionElement.innerText = question.question;
+  // creating the questions from questions object
+  questionElement.innerText = question.question; //putting in the question
   question.answers.forEach((answer) => {
+    //creating buttons and adding the answers
     const button = document.createElement("button");
     button.setAttribute("class", "answerButton"); // setting class so i can select these buttons later
     button.innerText = answer.text;
     if (answer.correct) {
-      button.dataset.correct = answer.correct; //giving correct answer alt dataset of correct
+      button.dataset.correct = answer.correct; //giving the correct answer option a dataset of correct
     }
-    button.addEventListener("click", selectAnswer);
     answersElement.appendChild(button);
+    button.addEventListener("click", selectAnswer);
   });
 }
 
-function resetState() {
+function lockBoard() {
+  // so the user cant skip a question
   nextQuestionBtn.classList.add("hide");
   while (answersElement.firstChild) {
-    // = when there is a question showing
+    // = if there is a current question/answers
     answersElement.removeChild(answersElement.firstChild); //how come all answers disapperas when targetting only first child?
   }
 }
 
-function showHighscore(doc) {
-  let li = document.createElement("li");
-  let name = document.createElement("span");
-  let score = document.createElement("span");
-  name.textContent = doc.data().name;
-  score.textContent = doc.data().score;
-
-  li.appendChild(name);
-  li.appendChild(score);
-  highscoreContainer.appendChild(li);
-}
-
 function selectAnswer(e) {
-  startGameBtn.classList = "hide";
+  startGameBtn.classList = "hide"; //hiding startbutton when answering first question
   const selectedButton = e.target;
   const correct = selectedButton.dataset.correct; //selecting answer w dataset of correct
-  setStatusClass(correct);
+  setStatusClass(correct); // log answer as correct or wrong
   Array.from(answersElement).forEach((button) => {
     setStatusClass(button, button.dataset.correct);
   });
   if (shuffledQuestions.length > currentQuestionIndex + 1) {
     //if there are questions left
-    nextQuestionBtn.classList.remove("hide");
+    nextQuestionBtn.classList.remove("hide"); // show next question
   } else {
-    scoreContainer.innerText = `Good job! You scored ${score} points! Total highscore:`;
-    startGameBtn.innerText = "Restart";
-    startGameBtn.classList.remove("hide");
-    highscoreContainer.classList.remove("hide");
-    questionElement.classList.add("hide");
-    answersElement.classList.add("hide");
-
-    const user = firebase.auth().currentUser.email;
-    storeScoreInFb(user, score);
-    db.collection("highscore")
-      .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc) => {
-          showHighscore(doc);
-        });
-      });
+    //if no question left
+    whenGameFinished();
+    storeAndShowFirestoreData();
   }
 }
 
-function storeScoreInFb(user, score) {
-  db.collection("highscore").add({
-    name: user,
-    score: score,
-  });
-}
-
 function setStatusClass(correct) {
+  // updates the score +
   if (correct) {
     score++;
     scoreContainer.innerText = "score: " + score;
-    const answerButtons = document.querySelectorAll(".answerButton"); //make a function of this for reusability
-    for (const button of answerButtons) {
-      button.removeEventListener("click", selectAnswer);
-    }
+    disableAnswerButton();
   } else {
-    const answerButtons = document.querySelectorAll(".answerButton"); //make a function of this for reusability
-    for (const button of answerButtons) {
-      button.removeEventListener("click", selectAnswer);
-    }
+    disableAnswerButton();
   }
 }
 
@@ -233,8 +196,60 @@ nextQuestionBtn.addEventListener("click", () => {
   setNextQuestion();
 });
 
-const questions = [
-  //probably more elegant to store in seperate json?
+function disableAnswerButton() {
+  // to lock the answer buttons after one click
+  const answerButtons = document.querySelectorAll(".answerButton");
+  for (const button of answerButtons) {
+    button.removeEventListener("click", selectAnswer);
+  }
+}
+
+function whenGameFinished() {
+  scoreContainer.innerText = `Good job! You scored ${score} points! Total highscore:`;
+  startGameBtn.innerText = "Restart"; //change from start to restart
+  startGameBtn.classList.remove("hide");
+  highscoreContainer.classList.remove("hide");
+  questionElement.classList.add("hide");
+  answersElement.classList.add("hide");
+}
+
+// Functions regarding firestore storage/retrieval
+
+function storeAndShowFirestoreData() {
+  // collector function for storing and showcasing data
+  const user = firebase.auth().currentUser.email; //get the current user signed in
+  storeScoreInFireStore(user, score); //storing function
+  db.collection("highscore") // getting each docucent/saved score and running a function on each
+    .get()
+    .then((snapshot) => {
+      snapshot.forEach((doc) => {
+        showHighscore(doc); 
+      });
+    });
+}
+
+function storeScoreInFireStore(user, score) {
+  // storing name and score to firestore
+  db.collection("highscore").add({
+    name: user,
+    score: score,
+  });
+}
+
+function showHighscore(doc) {
+  let li = document.createElement("li");
+  let name = document.createElement("span");
+  let score = document.createElement("span");
+  name.textContent = doc.data().name;
+  score.textContent = doc.data().score;
+  li.setAttribute("data-id", doc.id);
+
+  li.appendChild(name);
+  li.appendChild(score);
+  highscoreContainer.appendChild(li);
+}
+
+const questions = [ //probably more elegant to store in seperate json?
   {
     question: "2+2 = ?",
     answers: [
