@@ -15,9 +15,6 @@ const authBlock = document.querySelector("#auth");
 const logOutBtn = document.querySelector(".logOut-btn");
 
 /*firebase.auth().onAuthStateChanged(function (user) {              //supposed to register any auth change but is bugging. 
-  /*const notLoggedIn = document.querySelector(".loggedOut");
-  const loggedIn = document.querySelector(".loggedIn");
-  const signUp = document.querySelector(".signUp");
   const authBlock = document.querySelector("#auth");
   if (!user) {
     console.log("ok");
