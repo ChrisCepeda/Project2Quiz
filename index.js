@@ -16,8 +16,8 @@ const spotifyUrl = "https://api.spotify.com/v1/";
 // Quiz playlist ID, link to playlist: https://open.spotify.com/playlist/65CuEpxGE1EHYGGyS3XyVR?si=a77d581f4fa94a12
 const quizPlaylistID = "65CuEpxGE1EHYGGyS3XyVR";
 // Index in playlist, want this to be dynamic and connected to the frontend
-// Here you will encounter a bug, I get three of the same songs. Some indexes will not return anything when I search for alternatives to the song. Try index 28 and you will see the preview url is null, even if its a song by a famous artist.
-let searchIndex = 6;
+// Here on index 13 you will encounter a bug, I get three of the same songs. Some indexes will not return anything when I search for alternatives to the song. Try index 28 and you will see the preview url is null, even if its a song by a famous artist.
+let searchIndex = 13;
 
 // Tell express to use the sass middleware
 app.use(
