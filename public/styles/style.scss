@@ -62,7 +62,7 @@ body {
     }
 
     /* Do an horizontal flip when you move the mouse over the flip box container */
-    .flip-card:hover .flip-card-inner {
+    .flip-card.flip .flip-card-inner {
       transform: rotateY(180deg);
     }
 
@@ -78,7 +78,7 @@ body {
       img {
         width: 80px;
         height: 80px;
-        border-radius: 50%;
+        border-radius: 10px;
         margin-bottom: 10px;
       }
     }
@@ -99,9 +99,13 @@ body {
 
     /* Style the back side */
     .flip-card-back {
-      background-color: rgb(113, 163, 113);
+      background-color: rgb(184, 46, 46);
       color: white;
       transform: rotateY(180deg);
+    }
+    .flip-card.correct .flip-card-back {
+      background-color: #18af31;
+      color: #fff;
     }
   }
 }

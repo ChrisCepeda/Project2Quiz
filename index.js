@@ -9,15 +9,19 @@ const PORT = process.env.PORT || 8888;
 
 // Client details from Spotify Dashboard
 const client_id = "YOUR_CLIENT_ID";
-const client_secret = "YOUR_CLIENT_SECRET";
+const client_secret = "YOUR_CLIENTSECRET";
 const redirect_uri = "http://localhost:8888/callback";
-// Url to Spotify API
-const spotifyUrl = "https://api.spotify.com/v1/";
 // Quiz playlist ID, link to playlist: https://open.spotify.com/playlist/65CuEpxGE1EHYGGyS3XyVR?si=a77d581f4fa94a12
-const quizPlaylistID = "65CuEpxGE1EHYGGyS3XyVR";
+// Another playlist: https://open.spotify.com/playlist/0hZ9THXyLWxcjp3ZmEHesU?si=8beda6a8196e47c2
+const birksPappasquizPlaylistID = "65CuEpxGE1EHYGGyS3XyVR";
+const anotherMusicQuizPlaylist = "0hZ9THXyLWxcjp3ZmEHesU";
 // Index in playlist, want this to be dynamic and connected to the frontend
-// Here on index 13 you will encounter a bug, I get three of the same songs. Some indexes will not return anything when I search for alternatives to the song. Try index 28 and you will see the preview url is null, even if its a song by a famous artist.
-let searchIndex = 13;
+let searchIndex = createRandomNumberBetween(0, 200);
+let searchArtist = "";
+console.log({ searchIndex });
+function createRandomNumberBetween(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 // Tell express to use the sass middleware
 app.use(
@@ -32,52 +36,6 @@ app.use(
 // Set the public folder to serve static assets
 app.use(express.static("./public"));
 
-// Fetches data from Spotify API
-var fetchFromSpotify = async (artist, track, url, limit, offset, market) => {
-  // Refresh the access token and get the new one
-  let access_token = await refreshToken();
-  // Check if track parameter is empty, if so remove it from the url
-  let hasTrack = "";
-  track == "" ? (hasTrack = "") : (hasTrack = "+track:");
-  console.log({ artist, track, url, limit, offset, market });
-  try {
-    let res = await axios(
-      `${url}search?q=artist:${artist}${hasTrack}${track}&type=track&limit=${limit}&offset=${offset}&market=${market}`,
-      {
-        headers: {
-          Authorization: "Bearer " + access_token,
-        },
-      }
-    );
-    return res;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-// Searches for three tracks by artist and offset them by 5 to hopefully not get a remastered version
-var searchForAlternativeTracksByArtist = async () => {
-  try {
-    let playList = await getSongsFromPlaylist();
-    let res = await fetchFromSpotify(playList.artist, "", spotifyUrl, 3, 5, "SE");
-    return res.data.tracks.items;
-  } catch (error) {
-    console.error({ error });
-  }
-};
-
-// Searches for a single track by artist and songname to hopfullly get the acutal song from the playlist
-var searchForSingleTrackByArtistAndSongname = async () => {
-  try {
-    let playList = await getSongsFromPlaylist();
-    console.log({ playList });
-    let res = await fetchFromSpotify(playList.artist, playList.songName, spotifyUrl, 1, 0, "SE");
-    return res.data.tracks.items[0];
-  } catch (error) {
-    console.error({ error });
-  }
-};
-
 // Set the index.html file to be the homepage
 app.get("/", (req, res) => {
   res.sendFile("./public/index.html", { root: __dirname });
@@ -85,53 +43,67 @@ app.get("/", (req, res) => {
 
 // Create a url endpoint? to later fetch in the frontend
 app.get("/fetchFromSpotify_alternatives", async (req, res) => {
-  var result = await searchForAlternativeTracksByArtist();
+  var result = await getSongsFromSearch();
   res.json(result);
 });
 app.get("/fetchFromSpotify_answer", async (req, res) => {
-  var result = await searchForSingleTrackByArtistAndSongname();
-  res.json(result);
-});
-app.get("/previewUrl", async (req, res) => {
-  var result = await getPreviewUrl();
+  var result = await getSongFromPlaylist();
   res.json(result);
 });
 
-// Get the songs from the playlist using the Spotify Web API node package
-async function getSongsFromPlaylist() {
+// Get the 'right answer' from the playlist using the Spotify Web API node package
+async function getSongFromPlaylist() {
   // Get a playlist
   // Placeholder for now, if we dont return anything we get a banger instead
-  let songName = "Only You";
-  let artist = "Zara Larsson";
+  let songName = "";
+  let artist = "";
+  let imageUrl = "";
+  let previewUrl = "";
   try {
-    await spotifyApi.getPlaylist(quizPlaylistID).then(function getSongFromPlaylist(data) {
-      // Get the song name and artist from the playlist
+    await spotifyApi.getPlaylist(anotherMusicQuizPlaylist).then((data) => {
+      // Get the song, artist, preview url and image url from the playlist
       songName = formatDataFromPlaylist(data).name;
       artist = formatDataFromPlaylist(data).artists[0].name;
+      searchArtist = artist;
+      imageUrl = formatDataFromPlaylist(data).album.images[1].url;
+      previewUrl = formatDataFromPlaylist(data).preview_url;
+      console.log({ songName, artist, imageUrl, previewUrl });
     });
   } catch (error) {
     console.error({ error });
   }
-
   return {
-    songName: songName,
+    song: songName,
     artist: artist,
+    image: imageUrl,
+    previewUrl: previewUrl,
   };
 }
-// Get the preview url for the song, high chance it will be null
-async function getPreviewUrl() {
-  let previewUrl = "";
-  await spotifyApi.getPlaylist(quizPlaylistID).then(
-    function getPreviewUrl(data) {
-      previewUrl = formatDataFromPlaylist(data).preview_url;
-    },
-    function (err) {
-      console.log("Something went wrong!", err);
-    }
-  );
-  return previewUrl;
+// Get the alternative songs using the artist from the
+async function getSongsFromSearch() {
+  let resArray = [];
+  try {
+    await spotifyApi
+      // Try and play around with the search query, you can have artist:, album:, track:, playlist:, and show:
+      .searchTracks(`artist:${searchArtist}`, { limit: 3, offset: 0 })
+      .then((data) => {
+        data.body.tracks.items.forEach((element) => {
+          resArray.push({
+            song: element.name,
+            image: element.album.images[1].url,
+          });
+        });
+
+        console.log({ resArray });
+      });
+  } catch (error) {
+    console.error({ error });
+  }
+  searchIndex = createRandomNumberBetween(0, 200);
+  return resArray;
 }
-// Format the data from the playlist to make it a little easier to read and work with
+
+// Format the data from the playlist to make it a little easier to read and work with but I also have an error where sometimes it says that the track is undefined which is guess is because the data thats passed in is undefined
 function formatDataFromPlaylist(data) {
   let formated = data.body.tracks.items[searchIndex].track;
   return formated;

@@ -70,7 +70,7 @@ body {
   transform-style: preserve-3d;
 }
 
-.container .quiz-container .flip-card:hover .flip-card-inner {
+.container .quiz-container .flip-card.flip .flip-card-inner {
   transform: rotateY(180deg);
 }
 
@@ -89,7 +89,7 @@ body {
 .container .quiz-container .flip-card-back img {
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  border-radius: 10px;
   margin-bottom: 10px;
 }
 
@@ -105,7 +105,12 @@ body {
 }
 
 .container .quiz-container .flip-card-back {
-  background-color: #71a371;
+  background-color: #b82e2e;
   color: white;
   transform: rotateY(180deg);
+}
+
+.container .quiz-container .flip-card.correct .flip-card-back {
+  background-color: #18af31;
+  color: #fff;
 }

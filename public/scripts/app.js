@@ -11,28 +11,36 @@ var getAnswer = async () => {
   let data = await res.json();
   return data;
 };
-// Get the preview url from the backend
-var getPreviewUrl = async () => {
-  let res = await fetch(`./previewUrl`);
-  let data = await res.json();
-  return data;
-};
 // Create the alternatives and the answer
 var createListOfAlternatives = async () => {
   let alternatives = await getAlternatives();
   let answer = await getAnswer();
-  let url = await getPreviewUrl();
   quizWrapper.innerHTML = "";
-  createAlternatives(formatJSON(answer));
-  createAudio(url);
-  alternatives.forEach((item) => {
-    createAlternatives(formatJSON(item));
-  });
+  createAlternatives(answer);
+  createAudio(answer.previewUrl);
+  alternatives.forEach((item) => createAlternatives(item));
+  setCorrectAnswer();
 };
-// Create the audio element, add the source and play the audio. It will autoplay!!!!
+
+async function setCorrectAnswer() {
+  let answer = await getAnswer();
+  const cards = document.querySelectorAll(".flip-card");
+  cards.forEach((item) => {
+    item.addEventListener("click", () => {
+      item.classList.toggle("flip");
+      if (item.innerText === answer.song) {
+        item.classList.add("correct");
+        setTimeout(() => {
+          window.location.href = "./login";
+        }, 5000);
+      }
+    });
+  });
+}
+// Create the audio element
 var createAudio = async (url) => {
   document.querySelector(".audio").innerHTML = `
-  <audio autoplay controls>
+  <audio controls autoplay>
     <source src="${url}" type="audio/mp3">
   </audio>  
   `;
@@ -46,23 +54,11 @@ var createAlternatives = async (item) => {
     <div class="flip-card-front">
     <img src="${item.image}"> 
     <div class="card-name">
-      <p>${item.name}</p>
+      <p>${item.song}</p>
     </div>
     </div>
     <div class="flip-card-back"></div>
   </div>
 </div>
   `;
-};
-// Format the JSON to a more readable format and error handling
-var formatJSON = (data) => {
-  const formated = {
-    name: data.name ? data.name : "Undefined",
-    artists: data.album.artists[0].name ? data.album.artists[0].name : "Undefined",
-    link: data.album.artists[0].external_urls.spotify
-      ? data.album.artists[0].external_urls.spotify
-      : "Undefined",
-    image: data.album.images[1].url ? data.album.images[1].url : "Undefined",
-  };
-  return formated;
 };
