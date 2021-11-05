@@ -1,0 +1,140 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html {
+    font-family: Avenir Next, serif;
+  }
+  
+  body{
+    background: #fff;
+  }
+  
+  h1 {
+    font-family:'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1.8em;
+    
+  }
+  
+  
+  h2 {
+    font-family:'Bebas Neue', cursive;
+    font-weight: 500;
+    font-size: 3em;
+    
+  }
+  
+  
+  h3 {
+    font-family:'Bebas Neue', cursive;
+    font-weight: 500;
+    font-size: .6em;
+    
+  }
+
+  h4{
+    font-family:'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1.2em;
+  }
+  
+  p {
+  
+    font-family:'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 1em;
+  
+  }
+  
+  .welcomebox{
+    height:80%;
+    width:80%;
+    /* background: rgb(121, 100, 100);
+   width:300px;
+    height:480px;*/
+    position:relative;
+    margin:6% auto;
+    background:#fff;
+    padding-top:20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow:20px 20px 50px rgba(0, 0, 0, 0.5);
+    
+  }
+  
+  .container{
+    display:grid;
+    grid-template-columns: 1fr 1fr ;
+    justify-items: center;
+     /*background:linear-gradient(rgb(187, 187, 194), rgb(136, 220, 231));
+   background-image: url(../images/spotify.png);
+    background-size: contain;
+    /*background-repeat: no-repeat;*/
+    background-position:center;
+    position:relative;
+    margin:6% auto;
+    /*margin-top: 10vh;*/
+    padding:20px;
+    border-radius: 10px;
+  
+  }
+
+  @keyframes fadeAndScale2{
+    0%{
+      opacity:0;
+      transform:scale3d(.75,.75,1);
+    }
+    40% {
+      opacity:0;
+      transform:scale3d(.75,.75,1);
+
+    }
+    100% {
+      opcaity:1;
+      transform:scale3d(1,1,1);
+    }
+  }
+  .peeps img{
+    width:40%;
+    animation:fadeAndScale2 3s cubic-bezier(0.39,-1.05, .58, 1.95);
+    transform-origin:center bottom;
+   
+  }
+
+  @keyframes fadeAndScale {
+    0%{
+      opacity: 0;
+      transform:scale3d (.75,.75,1);
+
+    }
+    70%{
+      opacity:0;
+      transform:scale3d(.75,.75,1);
+    }
+
+    100%{
+      opacity:1;
+      transform:scale3d(1,1,1);
+    }
+  }
+
+  .firstheader{
+    animation: fadeAndScale 1s cubic-bezier(.39,-1.05,.58,1.95);
+    animation-delay:-0.2s;
+    transform-origin:center bottom;
+  }
+
+  .secondheader{
+    animation: fadeAndScale 2s cubic-bezier(.39,-1.05,.58,1.95);
+    animation-delay:-0.2s;
+    transform-origin:center bottom;
+  } 
+  
+  
+  
+  
+  
+  
