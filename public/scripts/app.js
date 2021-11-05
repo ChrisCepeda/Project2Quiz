@@ -9,6 +9,7 @@ var getAlternatives = async () => {
 var getAnswer = async () => {
   let res = await fetch(`./fetchFromSpotify_answer`);
   let data = await res.json();
+  console.log(data);
   return data;
 };
 // Create the alternatives and the answer
@@ -16,27 +17,26 @@ var createListOfAlternatives = async () => {
   let alternatives = await getAlternatives();
   let answer = await getAnswer();
   quizWrapper.innerHTML = "";
-  createAlternatives(answer);
-  createAudio(answer.previewUrl);
+  createAlternatives(answer[0]);
+  createAudio(answer[0].previewUrl);
   alternatives.forEach((item) => createAlternatives(item));
-  setCorrectAnswer();
+  intializeAlternativesWithEventlistener(answer);
 };
 
-async function setCorrectAnswer() {
-  let answer = await getAnswer();
-  const cards = document.querySelectorAll(".flip-card");
-  cards.forEach((item) => {
-    item.addEventListener("click", () => {
-      item.classList.toggle("flip");
-      if (item.innerText === answer.song) {
-        item.classList.add("correct");
-        setTimeout(() => {
-          window.location.href = "./login";
-        }, 5000);
+function intializeAlternativesWithEventlistener(answer) {
+  var cards = document.querySelectorAll(".flip-card");
+  cards.forEach((card) => {
+    card.addEventListener("click", function () {
+      card.classList.toggle("flip");
+      if (answer[0].song == card.innerText) {
+        card.classList.add("correct");
+        console.log(card.innerText);
+        console.log(answer[0].song);
       }
     });
   });
 }
+
 // Create the audio element
 var createAudio = async (url) => {
   document.querySelector(".audio").innerHTML = `

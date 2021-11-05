@@ -8,21 +8,19 @@ const SpotifyWebApi = require("spotify-web-api-node");
 const PORT = process.env.PORT || 8888;
 
 // Client details from Spotify Dashboard
-const client_id = "YOUR_CLIENT_ID";
-const client_secret = "YOUR_CLIENTSECRET";
+const client_id = "";
+const client_secret = "";
 const redirect_uri = "http://localhost:8888/callback";
 // Quiz playlist ID, link to playlist: https://open.spotify.com/playlist/65CuEpxGE1EHYGGyS3XyVR?si=a77d581f4fa94a12
 // Another playlist: https://open.spotify.com/playlist/0hZ9THXyLWxcjp3ZmEHesU?si=8beda6a8196e47c2
 const birksPappasquizPlaylistID = "65CuEpxGE1EHYGGyS3XyVR";
 const anotherMusicQuizPlaylist = "0hZ9THXyLWxcjp3ZmEHesU";
 // Index in playlist, want this to be dynamic and connected to the frontend
-let searchIndex = createRandomNumberBetween(0, 200);
-let searchArtist = "";
-console.log({ searchIndex });
+let searchIndex = createRandomNumberBetween(0, 100);
 function createRandomNumberBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
+let artistQuery = "";
 // Tell express to use the sass middleware
 app.use(
   "/styles",
@@ -55,29 +53,24 @@ app.get("/fetchFromSpotify_answer", async (req, res) => {
 async function getSongFromPlaylist() {
   // Get a playlist
   // Placeholder for now, if we dont return anything we get a banger instead
-  let songName = "";
-  let artist = "";
-  let imageUrl = "";
-  let previewUrl = "";
+  let resArray = [];
   try {
     await spotifyApi.getPlaylist(anotherMusicQuizPlaylist).then((data) => {
       // Get the song, artist, preview url and image url from the playlist
-      songName = formatDataFromPlaylist(data).name;
-      artist = formatDataFromPlaylist(data).artists[0].name;
-      searchArtist = artist;
-      imageUrl = formatDataFromPlaylist(data).album.images[1].url;
-      previewUrl = formatDataFromPlaylist(data).preview_url;
-      console.log({ songName, artist, imageUrl, previewUrl });
+      resArray.push({
+        song: formatDataFromPlaylist(data).name,
+        artist: formatDataFromPlaylist(data).artists[0].name,
+        image: formatDataFromPlaylist(data).album.images[1].url,
+        previewUrl: formatDataFromPlaylist(data).preview_url,
+      });
+      artistQuery = formatDataFromPlaylist(data).artists[0].name;
+      console.log({ resArray });
     });
   } catch (error) {
     console.error({ error });
   }
-  return {
-    song: songName,
-    artist: artist,
-    image: imageUrl,
-    previewUrl: previewUrl,
-  };
+  searchIndex = createRandomNumberBetween(0, 100);
+  return resArray;
 }
 // Get the alternative songs using the artist from the
 async function getSongsFromSearch() {
@@ -85,7 +78,7 @@ async function getSongsFromSearch() {
   try {
     await spotifyApi
       // Try and play around with the search query, you can have artist:, album:, track:, playlist:, and show:
-      .searchTracks(`artist:${searchArtist}`, { limit: 3, offset: 0 })
+      .searchTracks(`artist:${artistQuery}`, { limit: 3, offset: 0 })
       .then((data) => {
         data.body.tracks.items.forEach((element) => {
           resArray.push({
@@ -93,13 +86,11 @@ async function getSongsFromSearch() {
             image: element.album.images[1].url,
           });
         });
-
         console.log({ resArray });
       });
   } catch (error) {
     console.error({ error });
   }
-  searchIndex = createRandomNumberBetween(0, 200);
   return resArray;
 }
 
