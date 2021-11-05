@@ -1,26 +1,26 @@
 // Import node packages
 const express = require("express");
 const app = express();
-const axios = require("axios");
 const sassMiddleware = require("node-sass-middleware");
 const SpotifyWebApi = require("spotify-web-api-node");
 // Set the port to listen on 8888 or whatever is in the environment variable PORT
 const PORT = process.env.PORT || 8888;
 
 // Client details from Spotify Dashboard
-const client_id = "";
-const client_secret = "";
-const redirect_uri = "http://localhost:8888/callback";
+const client_id = "YOUR_CLIENT_ID";
+const client_secret = "YOUR_CLIENT_SECRECT";
+const redirect_url = "YOUR_CALLBACK_URL";
 // Quiz playlist ID, link to playlist: https://open.spotify.com/playlist/65CuEpxGE1EHYGGyS3XyVR?si=a77d581f4fa94a12
 // Another playlist: https://open.spotify.com/playlist/0hZ9THXyLWxcjp3ZmEHesU?si=8beda6a8196e47c2
+// Lugna favoriter: https://open.spotify.com/playlist/1VmuSeXFwxVX3JmGwFZ2I9?si=e44f40f99f5a4ebd
+// 720p : https://open.spotify.com/playlist/0DB9fMOskowjeJGLyRZ7st?si=8b6b1cd662214e89
+// Probablu going to do this so the user can input a playlist also, so its not hard coded
 const birksPappasquizPlaylistID = "65CuEpxGE1EHYGGyS3XyVR";
 const anotherMusicQuizPlaylist = "0hZ9THXyLWxcjp3ZmEHesU";
-// Index in playlist, want this to be dynamic and connected to the frontend
-let searchIndex = createRandomNumberBetween(0, 100);
-function createRandomNumberBetween(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-let artistQuery = "";
+const lugnaFavoriterPlaylist = "1VmuSeXFwxVX3JmGwFZ2I9";
+const birksPlaylist = "0DB9fMOskowjeJGLyRZ7st";
+// Index in playlist
+let indexInPlaylist = 0;
 // Tell express to use the sass middleware
 app.use(
   "/styles",
@@ -40,66 +40,97 @@ app.get("/", (req, res) => {
 });
 
 // Create a url endpoint? to later fetch in the frontend
-app.get("/fetchFromSpotify_alternatives", async (req, res) => {
-  var result = await getSongsFromSearch();
-  res.json(result);
-});
 app.get("/fetchFromSpotify_answer", async (req, res) => {
   var result = await getSongFromPlaylist();
+  res.json(result);
+});
+// Get the artist and song from the frontend
+app.get("/fetchFromSpotify_alternatives", async (req, res) => {
+  var result = await getSongsFromSearch(req.query.artist, req.query.song); // Get the artist and song from the frontend which will determine the alternatives
+  console.log(req.query.artist);
+  console.log(req.query.song);
   res.json(result);
 });
 
 // Get the 'right answer' from the playlist using the Spotify Web API node package
 async function getSongFromPlaylist() {
-  // Get a playlist
-  // Placeholder for now, if we dont return anything we get a banger instead
-  let resArray = [];
+  // Get a playlist from the playlist ID
+  // Create two variables, is there a cleaner way?
+  let answerArray = [];
+  let filteredPlaylist = [];
   try {
-    await spotifyApi.getPlaylist(anotherMusicQuizPlaylist).then((data) => {
-      // Get the song, artist, preview url and image url from the playlist
-      resArray.push({
-        song: formatDataFromPlaylist(data).name,
-        artist: formatDataFromPlaylist(data).artists[0].name,
-        image: formatDataFromPlaylist(data).album.images[1].url,
-        previewUrl: formatDataFromPlaylist(data).preview_url,
+    await spotifyApi.getPlaylist(birksPappasquizPlaylistID).then((data) => {
+      // Filter out the songs that dont have a preview url
+      data.body.tracks.items.forEach((element) => {
+        if (element.track.preview_url !== null) {
+          filteredPlaylist.push(element.track);
+        }
       });
-      artistQuery = formatDataFromPlaylist(data).artists[0].name;
-      console.log({ resArray });
+      // Get the song, artist, preview url and image url from the filtered playlist
+      console.log({ indexInPlaylist });
+      // Push the song, artist, preview url and image url to the answerArray. This is the right answer. There most certainly is a better way to do this, beccause now im fetching the songs over and over again
+      answerArray.push({
+        song: filteredPlaylist[indexInPlaylist].name,
+        artist: filteredPlaylist[indexInPlaylist].artists[0].name,
+        image: filteredPlaylist[indexInPlaylist].album.images[1].url,
+        previewUrl: filteredPlaylist[indexInPlaylist].preview_url,
+      });
+      // Increment the index in the playlist
+      indexInPlaylist++;
+      console.log({ answerArray });
     });
   } catch (error) {
     console.error({ error });
   }
-  searchIndex = createRandomNumberBetween(0, 100);
-  return resArray;
+  // return the answerArray
+  return answerArray;
 }
-// Get the alternative songs using the artist from the
-async function getSongsFromSearch() {
-  let resArray = [];
+// Get the alternative songs using the artist from the frontend
+async function getSongsFromSearch(artist, song) {
+  let alternativesArray = [];
   try {
     await spotifyApi
-      // Try and play around with the search query, you can have artist:, album:, track:, playlist:, and show:
-      .searchTracks(`artist:${artistQuery}`, { limit: 3, offset: 0 })
+      // Search for tracks by the artist depending on what song is playing
+      .searchTracks(artist, { offset: 5 })
       .then((data) => {
-        data.body.tracks.items.forEach((element) => {
-          resArray.push({
-            song: element.name,
-            image: element.album.images[1].url,
-          });
+        // Filter out the songs that have the same name or the word Live, Remix, Remaster, Original or Originally. There must be a better way to do this
+        data.body.tracks.items.every((element) => {
+          if (
+            !element.name.includes(song) &&
+            !element.name.includes("Live") &&
+            !element.name.includes("Remix") &&
+            !element.name.includes("Remaster") &&
+            !element.name.includes("Original") &&
+            !element.name.includes("Originally")
+          ) {
+            // Push the alternatives in an array
+            alternativesArray.push({
+              song: element.name,
+              image: element.album.images[1].url,
+              artist: element.artists[0].name,
+            });
+          }
+          // If the array contains of 5 alternatives, break the loop
+          if (alternativesArray.length === 5) return false;
+          return true;
         });
-        console.log({ resArray });
+        // Shuffle it, why not?
+        shuffleArray(alternativesArray);
+        console.log({ alternativesArray });
       });
   } catch (error) {
     console.error({ error });
   }
-  return resArray;
+  return alternativesArray;
 }
-
-// Format the data from the playlist to make it a little easier to read and work with but I also have an error where sometimes it says that the track is undefined which is guess is because the data thats passed in is undefined
-function formatDataFromPlaylist(data) {
-  let formated = data.body.tracks.items[searchIndex].track;
-  return formated;
+// Shuffle the array
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
-
 // Set the scopes that we need to access the Spotify API, basically all of them
 const scopes = [
   "ugc-image-upload",
@@ -124,7 +155,7 @@ const scopes = [
 ];
 // Initialize a new SpotifyApi, and pass in the client_id and client_secret
 const spotifyApi = new SpotifyWebApi({
-  redirectUri: redirect_uri,
+  redirectUri: redirect_url,
   clientId: client_id,
   clientSecret: client_secret,
 });
