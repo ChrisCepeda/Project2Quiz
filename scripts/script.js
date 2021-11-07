@@ -16,6 +16,7 @@ db.settings({ timestampsInSnapshots: true });
 
 const authBlock = document.querySelector("#auth");
 const logOutBtn = document.querySelector(".logOut-btn");
+//let username = document.querySelector("#username_field");
 
 firebase.auth().onAuthStateChanged(function (user) {
   //register if user is logged in/out and hides/shows different content depending on that
@@ -27,18 +28,20 @@ firebase.auth().onAuthStateChanged(function (user) {
   }
 });
 
+window.addEventListener('load', (event) => {
+  logOut();
+});
+
 function resetGame() {
   //to get the right button to show/hide
-  if (startGameBtn.classList.contains("hide")) {
-    startGameBtn.innerText = "Start quiz";
-    startGameBtn.classList.remove("hide");
-  }
+  startGameBtn.innerText = "Start quiz";
+  startGameBtn.classList.remove("hide");
   questionElement.classList = "hide";
   answersElement.classList = "hide";
   scoreContainer.classList = "hide";
   nextQuestionBtn.classList = "hide";
   highscoreContainer.classList = "hide";
-  highscoreContainer.innerText = "";  //clear the highscore between games so it doesnt print same score multiple times
+  highscoreContainer.innerText = ""; //clear the highscore between games so it doesnt print same score multiple times
 }
 
 const loginForm = document.querySelector("#login"); //grab information for login function
@@ -53,6 +56,7 @@ loginForm.addEventListener("submit", (e) => {
 
 function logInUser(email, password) {
   //user login
+  resetGame();
   firebase
     .auth()
     .signInWithEmailAndPassword(email, password)
@@ -68,13 +72,16 @@ function logInUser(email, password) {
   resetGame();
 }
 
+let username = "";
 const newMemberForm = document.querySelector("#register"); // grab information for member reg.
 newMemberForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const signUpEmail = document.querySelector("#email_signup").value;
   const signUpPassword = document.querySelector("#password_signup").value;
+  username = document.querySelector("#username_field").value;
   newMemberForm.reset();
   newMember(signUpEmail, signUpPassword);
+  //console.log(username)
 });
 
 function newMember(signUpEmail, signUpPassword) {
@@ -105,6 +112,7 @@ function logOut() {
     .catch((error) => {
       // An error happened.
     });
+  resetGame();
 }
 
 //QUIZ CODE BELOW
@@ -120,7 +128,7 @@ let score = 0;
 
 startGameBtn.addEventListener("click", startGame); //start the game
 function startGame() {
-  resetGame();
+  resetGame(); //to reset when user restarts the game
   score = 0;
   (scoreContainer.innerText = "score: "), score; //why brackets appearing when formatting??
   scoreContainer.classList.remove("hide");
@@ -223,7 +231,7 @@ function storeAndShowFirestoreData() {
     .get()
     .then((snapshot) => {
       snapshot.forEach((doc) => {
-        showHighscore(doc); 
+        showHighscore(doc);
       });
     });
 }
@@ -233,23 +241,29 @@ function storeScoreInFireStore(user, score) {
   db.collection("highscore").add({
     name: user,
     score: score,
+    username: username,
   });
 }
 
 function showHighscore(doc) {
   let li = document.createElement("li");
-  let name = document.createElement("span");
+  //let name = document.createElement("span");
+  let username = document.createElement("span");
   let score = document.createElement("span");
-  name.textContent = doc.data().name;
-  score.textContent = doc.data().score;
+  //name.textContent = doc.data().name;
+  username.textContent = doc.data().username + ": ";
+  score.textContent = doc.data().score + " points";
   li.setAttribute("data-id", doc.id);
 
-  li.appendChild(name);
+  //li.appendChild(name);
+  li.appendChild(username);
   li.appendChild(score);
   highscoreContainer.appendChild(li);
+  highscoreContainer.classList.remove("hide");
 }
 
-const questions = [ //probably more elegant to store in seperate json?
+const questions = [
+  //probably more elegant to store in seperate json?
   {
     question: "2+2 = ?",
     answers: [
