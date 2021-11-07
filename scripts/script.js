@@ -29,7 +29,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 });
 
 window.addEventListener('load', (event) => {
-  logOut();
+  //logOut();
 });
 
 function resetGame() {
@@ -49,7 +49,6 @@ loginForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const email = document.querySelector("#email_field").value;
   const password = document.querySelector("#password_field").value;
-  console.log(email, password);
   loginForm.reset();
   logInUser(email, password);
 });
@@ -153,9 +152,9 @@ function showQuestion(question) {
     const button = document.createElement("button");
     button.setAttribute("class", "answerButton"); // setting class so i can select these buttons later
     button.innerText = answer.text;
-    if (answer.correct) {
+    //if (answer.correct) {
       button.dataset.correct = answer.correct; //giving the correct answer option a dataset of correct
-    }
+    //}
     answersElement.appendChild(button);
     button.addEventListener("click", selectAnswer);
   });
