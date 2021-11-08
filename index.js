@@ -7,9 +7,9 @@ const SpotifyWebApi = require("spotify-web-api-node");
 const PORT = process.env.PORT || 8888;
 
 // Client details from Spotify Dashboard
-const client_id = "YOUR_CLIENT_ID";
-const client_secret = "YOUR_CLIENT_SECRECT";
-const redirect_url = "YOUR_CALLBACK_URL";
+const client_id = "37b1eaecb89b4ec286c599334d926d83";
+const client_secret = "23913c280cfe4bfb9c8aa8e8097a9491";
+const redirect_url = "http://localhost:8888/callback";
 // Quiz playlist ID, link to playlist: https://open.spotify.com/playlist/65CuEpxGE1EHYGGyS3XyVR?si=a77d581f4fa94a12
 // Another playlist: https://open.spotify.com/playlist/0hZ9THXyLWxcjp3ZmEHesU?si=8beda6a8196e47c2
 // Lugna favoriter: https://open.spotify.com/playlist/1VmuSeXFwxVX3JmGwFZ2I9?si=e44f40f99f5a4ebd

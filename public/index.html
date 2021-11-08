@@ -5,14 +5,77 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./styles/style.css">
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-auth.js"></script>
+  <link rel="stylesheet" type="text/css" href="../styles/style.css">
   <title>Project-2-Quiz</title>
 </head>
 
-<body>
-  <!-- Login the user -->
-  <a class="login-logout-btn" href="/login">Start quiz</a>
-  <script src="./scripts/app.js"></script>
+<body> 
+  <div class="background">
+    <div id="auth" class="auth--anonymous">
+      <div class="formbox"> 
+        <div class="button-box">
+          <div id="btn"> </div>
+          <button type="button" class="toggle-btn" onclick="login()">Log In</button>
+          <button type="button" class="toggle-btn" onclick="register()">Register</button>
+        </div>
+        <div class="social-icons">
+          <img src="images/iconfacebook.png">
+          <img src="images/icongoogle.png">
+        </div>
+        <form id="login" class="input-group">
+          <input type="text" class="input-field" placeholder="Email Id" required id="email_field">
+          <input type="password" class="input-field" placeholder="Enter Password" required id="password_field"><br>
+          <input type="checkbox" class="check-box">
+          <span class="rememberPassword">Remember Password</span>
+          <button type="submit" class="submit-btn">Log In</button>
+        </form>
+        <form id="register" class="input-group">
+          <input type="text" class="input-field" placeholder="Username" required id="username_field">
+          <input type="email" class="input-field" placeholder="Email Id" required id="email_signup"><br>
+          <input type="password" class="input-field" placeholder="Enter Password" required id="password_signup"><br>
+          <input type="checkbox" class="check-box">
+          <span>I agree to the terms & conditions</span>
+          <button type="submit" class="submit-btn">Register</button>
+        </form> 
+        <div class="loggedIncontainer">
+          <div class="logOut">
+            <button class="logOut-btn">LOG OUT</button>
+            <a href="/login">Start quiz</a>
+            <button class="nextQuestion-btn">Next question</button>
+            <div class="score-div"></div>
+          </div>
+          <div id="highscore"></div>
+          <div class="quiz-container">
+            <div class="question">
+            </div>
+            <div class="answers-container">
+            </div>
+          </div>
+        </div> 
+      </div>
+    </div>
+  </div>
+
+
+  <script> //this should be moved to script.js
+    var x = document.getElementById("login");
+    var y = document.getElementById("register");
+    var z = document.getElementById("btn");
+    function register() {
+      x.style.left = "-400px";
+      y.style.left = "10px";
+      z.style.left = "110px";
+    }
+    function login() {
+      x.style.left = "10px";
+      y.style.left = "480px";
+      z.style.left = "0px";
+    }
+  </script>
+  <script src="./scripts/firstPage.js" type="module"></script>
 </body>
 
 </html>
