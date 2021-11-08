@@ -1,0 +1,134 @@
+.choice-container {
+  display: flex;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  font-size: 1.8rem;
+  border: 0.1rem solid rgb(86, 165, 235, 0.25);
+  background-color: white;
+}
+
+.choice-container:hover {
+  cursor: pointer;
+  box-shadow: 0 0.4rem 1.4rem 0 rgba(0, 0, 0, 0.342);
+  transform: scale(1.02) translateY(-0.1rem);
+  transition: transform 100ms;
+}
+
+.choice-prefix {
+  padding: 1.5rem 2.5rem;
+  background-color: #1d2220;
+  color: white;
+}
+
+.choice-text {
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.correct {
+  background-color: rgb(44, 214, 81);
+}
+
+.incorrect {
+  background-color: rgb(233, 50, 50);
+}
+
+/* HUD */
+
+#hud {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hud-prefix {
+  text-align: center;
+  font-size: 2rem;
+}
+
+.hud-main-text {
+  text-align: center;
+}
+
+#progressBar {
+  width: 20rem;
+  height: 4rem;
+  border: 0.3rem solid rgb(233, 252, 255);
+  margin-top: 1.5rem;
+}
+
+#progressBarFull {
+  height: 3.4rem;
+  background-color: rgb(233, 252, 255);
+  width: 0%;
+}
+
+/* LOADER */
+
+#loader {
+  border: 1.6rem solid white;
+  border-radius: 50%;
+  border-top: 1.6rem solid #151817;
+  width: 12rem;
+  height: 12rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* QUESTION FADEIN */
+
+.fadeInAnim {
+  animation: fadeIn 1s linear;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* QUESTION STYLING */
+
+#quiz-A {
+  background-color: #ddf039;
+}
+
+#quiz-B {
+  background-color: #e73c7e;
+}
+
+#quiz-C {
+  background-color: #23d5d5;
+}
+
+#quiz-D {
+  background-color: #ab23d5;
+}
+
+#progressBarFull {
+  background: linear-gradient(-90deg, #ffffff, rgba(255, 255, 255, 0.575));
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
