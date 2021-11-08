@@ -5,16 +5,16 @@ let cardToCheck;
 let previewSongTime = 30;
 let timer;
 // Get the alternatives from the backend and send the artist and song from the answer so we can have some alternatives relative to the song thats playing
-var getAlternatives = async (artist, song) => {
+var getAlternatives = async (artist, song, id) => {
   // For some reason when passing the & character the string that came out was divided in three parts, messing with the alternatives
   artist = artist.replace("&", "and");
-  let res = await fetch(`./fetchFromSpotify_alternatives?artist=${artist}&song=${song}`);
+  let res = await fetch(`./fetchFromSpotify_alternatives?artist=${artist}&song=${song}&id=${id}`);
   let data = res.json();
   return data;
 };
 // Get the answer from the backend
-var getAnswer = async (input) => {
-  let res = await fetch(`./fetchFromSpotify_answer?id=${input}`);
+var getAnswer = async () => {
+  let res = await fetch(`./fetchFromSpotify_answer`);
   let data = await res.json();
   return data;
 };
@@ -22,8 +22,9 @@ var getAnswer = async (input) => {
 var createListOfAlternatives = async () => {
   // Get the answer from the backend
   answer = await getAnswer();
+  console.log(answer);
   // Get the alternatives from the backend and send the artist and song from the answer so we can have some alternatives relative to the song thats playing
-  let alternatives = await getAlternatives(answer[0].artist, answer[0].song);
+  let alternatives = await getAlternatives(answer[0].artist, answer[0].song, answer[0].artistId);
   quizWrapper.innerHTML = " <h1>Name the song:)</h1>";
   // Create the alternatives
   alternatives.forEach((item) => createAlternatives(formatAndErrorHandle(item)));
@@ -66,6 +67,7 @@ function checkIfTheAnswerIsCorrect() {
 }
 function pauseAudioAndgetCurrentTimeInAudio() {
   setTimeout(pauseAudio, 500);
+  stopTimer();
 }
 
 function removeEventListenerFromCards() {
@@ -79,7 +81,7 @@ function countdownTimerForSongs() {
 }
 
 function stopTimer() {
-  clearInterval(previewSongTime);
+  clearInterval(timer);
   previewSongTime = 30;
   stopVinyls();
 }

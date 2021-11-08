@@ -17,6 +17,8 @@ const redirect_url = "YOUR_CALLBACK_URL";
 // All out 80s: https://open.spotify.com/playlist/37i9dQZF1DX4UtSsGT1Sbe?si=9dba249da0804dda
 // Some hip hop: https://open.spotify.com/playlist/3WznMJPiYBt79GaKVQbrOY?si=395210c221de439c
 // Just a shit tone of music : https://open.spotify.com/playlist/4U1GUcN3BuiB4IbvpJ4qXH?si=8069712808724810
+// Top 50 global : https://open.spotify.com/playlist/37i9dQZEVXbNG2KDcFcKOF?si=aefa22b8c6444db9
+// Songs i'm having trouble with : https://open.spotify.com/playlist/3ruyDRPnNMOW80mZPVsKRu?si=b6a03668e5ea4c99
 // Probablu going to do this so the user can input a playlist also, so its not hard coded
 const birksPappasquizPlaylistID = "65CuEpxGE1EHYGGyS3XyVR";
 const anotherMusicQuizPlaylist = "0hZ9THXyLWxcjp3ZmEHesU";
@@ -25,9 +27,11 @@ const birksPlaylist = "0DB9fMOskowjeJGLyRZ7st";
 const allOut80s = "37i9dQZF1DX4UtSsGT1Sbe";
 const hiphop = "3WznMJPiYBt79GaKVQbrOY";
 const bangersByMehler = "4U1GUcN3BuiB4IbvpJ4qXH";
+const top50global = "37i9dQZEVXbNG2KDcFcKOF";
+const songsImHavingTroubleWith = "3ruyDRPnNMOW80mZPVsKRu";
 
 // Index in playlist
-let indexInPlaylist = 0;
+let indexInPlaylist = 6;
 // Offset in the playlist, needed if the playlist have more than 100 songs
 let offset = 0;
 // Tell express to use the sass middleware
@@ -55,7 +59,7 @@ app.get("/fetchFromSpotify_answer", async (req, res) => {
 });
 // Get the artist and song from the frontend
 app.get("/fetchFromSpotify_alternatives", async (req, res) => {
-  var result = await getSongsFromSearch(req.query.artist, req.query.song); // Get the artist and song from the frontend which will determine the alternatives
+  var result = await getSongsFromSearch(req.query.artist, req.query.song, req.query.id); // Get the artist and song from the frontend which will determine the alternatives
   res.json(result);
 });
 
@@ -63,48 +67,58 @@ app.get("/fetchFromSpotify_alternatives", async (req, res) => {
 async function getSongFromPlaylist() {
   // Get a playlist from the playlist ID
   // Create two variables, is there a cleaner way?
-  let answerArray = [];
-  let filteredPlaylist = [];
+  let currentSongToBeDisplayed;
   try {
     await spotifyApi
-      .getPlaylistTracks(bangersByMehler, { limit: 100, offset: offset, fields: "items" })
+      .getPlaylistTracks(top50global, { limit: 100, offset: offset, fields: "items" })
       .then((data) => {
         // Filter out the songs that dont have a preview url
-        data.body.items.forEach((element) => {
-          if (element.track.preview_url !== null) {
-            filteredPlaylist.push(element.track);
-          }
-        });
-        console.log("Lenght yooo ", filteredPlaylist.length - 1);
-        console.log(data.body.items[indexInPlaylist].added_by);
-        // Get the song, artist, preview url and image url from the filtered playlist
-        // Push the song, artist, preview url and image url to the answerArray. This is the right answer. There most certainly is a better way to do this, beccause now im fetching the songs over and over again
-        answerArray.push({
-          song: filteredPlaylist[indexInPlaylist].name,
-          artist: filteredPlaylist[indexInPlaylist].artists[0].name,
-          image: filteredPlaylist[indexInPlaylist].album.images[1].url,
-          previewUrl: filteredPlaylist[indexInPlaylist].preview_url,
-        });
-
-        // Increment the index in the playlist
-        console.log({ indexInPlaylist });
-        console.log({ offset });
         indexInPlaylist++;
-        console.log({ answerArray });
-        // If the index is equal to the length of the filteredPlaylist, set the offset to 100 and reset the count
-        if (indexInPlaylist === filteredPlaylist.length - 1) {
-          offset += 100;
-          indexInPlaylist = 0;
-        }
+        currentSongToBeDisplayed = filterSongsInPlaylist(data.body.items, indexInPlaylist);
+        console.log({ currentSongToBeDisplayed });
+        // return the answerArray
       });
   } catch (error) {
     console.error({ error });
   }
-  // return the answerArray
+  return currentSongToBeDisplayed;
+}
+
+function filterSongsInPlaylist(playlist, i) {
+  let filteredPlaylist = [];
+  // Get the song, artist, preview url and image url from the filtered playlist
+  // Push the song, artist, preview url and image url to the answerArray. This is the right answer. There most certainly is a better way to do this, beccause now im fetching the songs over and over again
+  playlist.forEach((song) => {
+    if (song.track.preview_url !== null) {
+      filteredPlaylist.push(song.track);
+    }
+  });
+  let trackName = filteredPlaylist[i].name;
+  let artistName = filteredPlaylist[i].artists[0].name;
+  let previewUrl = filteredPlaylist[i].preview_url;
+  let imageUrl = filteredPlaylist[i].album.images[1].url;
+  let id = filteredPlaylist[i].artists[0].id;
+  let filteredSong = pushSongsWithPreviewToArray(trackName, artistName, imageUrl, previewUrl, id);
+  // If the index is equal to the length of the filteredPlaylist, set the offset to 100 and reset the count
+  if (i === filteredPlaylist.length - 1) {
+    offset += 100;
+    indexInPlaylist = 0;
+  }
+  return filteredSong;
+}
+function pushSongsWithPreviewToArray(song, artist, image, previewUrl, id) {
+  let answerArray = [];
+  answerArray.push({
+    song: song,
+    artist: artist,
+    image: image,
+    previewUrl: previewUrl,
+    artistId: id,
+  });
   return answerArray;
 }
 // Get the alternative songs using the artist from the frontend
-async function getSongsFromSearch(artist, song) {
+async function getSongsFromSearch(artist, song, id) {
   // replace the and with &, can fuck with some artists/bands, im up for a better solution
   artist = artist.replace(" and", " &");
   let alternativesArray = [];
@@ -125,13 +139,7 @@ async function getSongsFromSearch(artist, song) {
           // console.log(`\x1b[31m%s\x1b[0m', Artist: ${element.artists[0].name}`);
           // console.log("");
           if (
-            !element.name.includes(modifiedSong) &&
-            // !element.name.includes("Live") &&
-            // !element.name.includes("Remix") &&
-            // !element.name.includes("Remaster") &&
-            // !element.name.includes("Original") &&
-            // !element.name.includes("Acoustic") &&
-            // !element.name.includes("Originally") &&
+            !element.name.includes(modifiedSong || song) &&
             element.artists[0].name == artist &&
             filteredPlaylist.some((e) => e.song === element.name) === false
           ) {
@@ -143,17 +151,49 @@ async function getSongsFromSearch(artist, song) {
             });
           }
         });
-        // Shuffle it so the results vary from time to time
-        shuffleArray(filteredPlaylist);
-        // Push only three alternatives to return
-        for (let i = 0; i < 3; i++) {
-          alternativesArray.push(filteredPlaylist[i]);
-        }
       });
   } catch (error) {
     console.error({ error });
   }
+  // Check if the filteredPlaylist is empty, if it is, search for more songs by the artist top tracks
+  if (filteredPlaylist.length < 3) {
+    let moreSongs = await ifSongsFromSearchByArtistDidNotReturnEnough(id);
+    // Push the more songs to the filteredPlaylist if the song name is not already in the filteredPlaylist
+    moreSongs.forEach((element) => {
+      if (
+        filteredPlaylist.some((e) => e.song === element.song) === false &&
+        element.song !== song
+      ) {
+        filteredPlaylist.push(element);
+      }
+    });
+  }
+  // Shuffle it so the results vary from time to time
+  shuffleArray(filteredPlaylist);
+  // Push only three alternatives to return
+  for (let i = 0; i < 3; i++) {
+    alternativesArray.push(filteredPlaylist[i]);
+  }
   return alternativesArray;
+}
+
+async function ifSongsFromSearchByArtistDidNotReturnEnough(artist) {
+  let moreSongs = [];
+  console.log({ artist });
+  try {
+    await spotifyApi.getArtistTopTracks(artist, "SE").then((data) => {
+      data.body.tracks.forEach((element) => {
+        moreSongs.push({
+          song: element.name,
+          image: element.album.images[1].url,
+          artist: element.artists[0].name,
+        });
+      });
+    });
+  } catch (error) {
+    console.error({ error });
+  }
+  return moreSongs;
 }
 
 // Function to modify string
