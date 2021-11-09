@@ -3,13 +3,12 @@ const express = require("express");
 const app = express();
 const sassMiddleware = require("node-sass-middleware");
 const SpotifyWebApi = require("spotify-web-api-node");
+require("dotenv").config();
 // Set the port to listen on 8888 or whatever is in the environment variable PORT
-const PORT = process.env.PORT || 5555;
+const PORT = process.env.PORT || 8888;
 
 // Client details from Spotify Dashboard
-const client_id = "YOUR_CLIENT_ID";
-const client_secret = "YOUR_CLIENT_SECRECT";
-const redirect_url = "YOUR_CALLBACK_URL";
+const redirect_uri = "http://localhost:8888/callback";
 // Quiz playlist ID, link to playlist: https://open.spotify.com/playlist/65CuEpxGE1EHYGGyS3XyVR?si=a77d581f4fa94a12
 // Another playlist: https://open.spotify.com/playlist/0hZ9THXyLWxcjp3ZmEHesU?si=8beda6a8196e47c2
 // Lugna favoriter: https://open.spotify.com/playlist/1VmuSeXFwxVX3JmGwFZ2I9?si=e44f40f99f5a4ebd -- Not working???
@@ -30,10 +29,6 @@ const bangersByMehler = "4U1GUcN3BuiB4IbvpJ4qXH";
 const top50global = "37i9dQZEVXbNG2KDcFcKOF";
 const songsImHavingTroubleWith = "3ruyDRPnNMOW80mZPVsKRu";
 
-// Index in playlist
-let indexInPlaylist = 6;
-// Offset in the playlist, needed if the playlist have more than 100 songs
-let offset = 0;
 // Tell express to use the sass middleware
 app.use(
   "/styles",
@@ -59,131 +54,64 @@ app.get("/fetchFromSpotify_answer", async (req, res) => {
 });
 // Get the artist and song from the frontend
 app.get("/fetchFromSpotify_alternatives", async (req, res) => {
-  var result = await getSongsFromSearch(req.query.artist, req.query.song, req.query.id); // Get the artist and song from the frontend which will determine the alternatives
+  var result = await getSongsFromSearch(req.query.artist, req.query.song, req.query.id);
+  console.log(req.query.artist);
   res.json(result);
 });
 
-// Get the 'right answer' from the playlist using the Spotify Web API node package
 async function getSongFromPlaylist() {
-  // Get a playlist from the playlist ID
-  // Create two variables, is there a cleaner way?
-  let currentSongToBeDisplayed;
+  let playlist = [];
   try {
     await spotifyApi
-      .getPlaylistTracks(top50global, { limit: 100, offset: offset, fields: "items" })
+      .getPlaylistTracks(anotherMusicQuizPlaylist, { limit: 100, offset: 0, fields: "items" })
       .then((data) => {
-        // Filter out the songs that dont have a preview url
-        indexInPlaylist++;
-        currentSongToBeDisplayed = filterSongsInPlaylist(data.body.items, indexInPlaylist);
-        console.log({ currentSongToBeDisplayed });
-        // return the answerArray
-      });
-  } catch (error) {
-    console.error({ error });
-  }
-  return currentSongToBeDisplayed;
-}
-
-function filterSongsInPlaylist(playlist, i) {
-  let filteredPlaylist = [];
-  // Get the song, artist, preview url and image url from the filtered playlist
-  // Push the song, artist, preview url and image url to the answerArray. This is the right answer. There most certainly is a better way to do this, beccause now im fetching the songs over and over again
-  playlist.forEach((song) => {
-    if (song.track.preview_url !== null) {
-      filteredPlaylist.push(song.track);
-    }
-  });
-  let trackName = filteredPlaylist[i].name;
-  let artistName = filteredPlaylist[i].artists[0].name;
-  let previewUrl = filteredPlaylist[i].preview_url;
-  let imageUrl = filteredPlaylist[i].album.images[1].url;
-  let id = filteredPlaylist[i].artists[0].id;
-  let filteredSong = pushSongsWithPreviewToArray(trackName, artistName, imageUrl, previewUrl, id);
-  // If the index is equal to the length of the filteredPlaylist, set the offset to 100 and reset the count
-  if (i === filteredPlaylist.length - 1) {
-    offset += 100;
-    indexInPlaylist = 0;
-  }
-  return filteredSong;
-}
-function pushSongsWithPreviewToArray(song, artist, image, previewUrl, id) {
-  let answerArray = [];
-  answerArray.push({
-    song: song,
-    artist: artist,
-    image: image,
-    previewUrl: previewUrl,
-    artistId: id,
-  });
-  return answerArray;
-}
-// Get the alternative songs using the artist from the frontend
-async function getSongsFromSearch(artist, song, id) {
-  // replace the and with &, can fuck with some artists/bands, im up for a better solution
-  artist = artist.replace(" and", " &");
-  let alternativesArray = [];
-  let filteredPlaylist = [];
-  console.log({ song });
-  // Remove stuff like - Original mix or - club edition for easier check later
-  let modifiedSong = removeCharactersAfterCharacterInString(song, " -");
-
-  try {
-    await spotifyApi
-      // Search for tracks by the artist depending on what song is playing
-      .searchTracks(artist, { limit: 50, offset: 0 })
-      .then((data) => {
-        // Filter out the songs that have the same name, don't have the same artist and if the song is already in the filtered array There must be a better way to do this
-        console.log({ modifiedSong, artist });
-        data.body.tracks.items.forEach((element) => {
-          // console.log(`\x1b[36m%s\x1b[0m', Song: ${element.name}`);
-          // console.log(`\x1b[31m%s\x1b[0m', Artist: ${element.artists[0].name}`);
-          // console.log("");
-          if (
-            !element.name.includes(modifiedSong || song) &&
-            element.artists[0].name == artist &&
-            filteredPlaylist.some((e) => e.song === element.name) === false
-          ) {
-            // Push the alternatives in an array
-            filteredPlaylist.push({
-              song: element.name,
-              image: element.album.images[1].url,
-              artist: element.artists[0].name,
-            });
-          }
+        data.body.items.forEach((element) => {
+          if (element.track.preview_url === null) return;
+          playlist.push(element.track);
         });
       });
   } catch (error) {
     console.error({ error });
   }
-  // Check if the filteredPlaylist is empty, if it is, search for more songs by the artist top tracks
-  if (filteredPlaylist.length < 3) {
-    let moreSongs = await ifSongsFromSearchByArtistDidNotReturnEnough(id);
-    // Push the more songs to the filteredPlaylist if the song name is not already in the filteredPlaylist
-    moreSongs.forEach((element) => {
-      if (
-        filteredPlaylist.some((e) => e.song === element.song) === false &&
-        element.song !== song
-      ) {
-        filteredPlaylist.push(element);
-      }
+  return playlist;
+}
+
+async function getSongsFromSearch(artist, song, id) {
+  console.log({ artist });
+  artist = replaceInString(" and", " &", artist);
+  console.log({ artist });
+  let alternativesArray = [];
+  let filteredPlaylist = [];
+  // console.log({ song });
+  let modifiedSong = removeCharactersAfterCharacterInString(song, " -");
+
+  try {
+    await spotifyApi.searchTracks(artist, { limit: 50, offset: 0 }).then((data) => {
+      data.body.tracks.items.forEach((element) => {
+        if (
+          !element.name.includes(modifiedSong || song) &&
+          element.artists[0].name == artist &&
+          filteredPlaylist.some((e) => e.song === element.name) === false
+        ) {
+          filteredPlaylist.push(element);
+        }
+      });
     });
+  } catch (error) {
+    console.error({ error });
   }
-  // Shuffle it so the results vary from time to time
   shuffleArray(filteredPlaylist);
-  // Push only three alternatives to return
-  for (let i = 0; i < 3; i++) {
-    alternativesArray.push(filteredPlaylist[i]);
-  }
+  for (let i = 0; i < 3; i++) alternativesArray.push(filteredPlaylist[i]);
+  console.log({ alternativesArray });
   return alternativesArray;
 }
 
 async function ifSongsFromSearchByArtistDidNotReturnEnough(artist) {
-  let moreSongs = [];
-  console.log({ artist });
+  let artistsTop10Tracks = [];
   try {
     await spotifyApi.getArtistTopTracks(artist, "SE").then((data) => {
       data.body.tracks.forEach((element) => {
-        moreSongs.push({
+        artistsTop10Tracks.push({
           song: element.name,
           image: element.album.images[1].url,
           artist: element.artists[0].name,
@@ -193,9 +121,12 @@ async function ifSongsFromSearchByArtistDidNotReturnEnough(artist) {
   } catch (error) {
     console.error({ error });
   }
-  return moreSongs;
+  return artistsTop10Tracks;
 }
 
+function replaceInString(replace, character, toReplace) {
+  return toReplace.replace(replace, character);
+}
 // Function to modify string
 function removeCharactersAfterCharacterInString(input, modification) {
   let index = input.lastIndexOf(modification);
@@ -210,6 +141,7 @@ function shuffleArray(array) {
   }
   return array;
 }
+
 // Set the scopes that we need to access the Spotify API, basically all of them
 const scopes = [
   "ugc-image-upload",
@@ -234,9 +166,9 @@ const scopes = [
 ];
 // Initialize a new SpotifyApi, and pass in the client_id and client_secret
 const spotifyApi = new SpotifyWebApi({
-  redirectUri: redirect_url,
-  clientId: client_id,
-  clientSecret: client_secret,
+  redirectUri: redirect_uri,
+  clientId: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
 });
 
 // Send the user to the Spotify login page and ask them to authorize to get the access token
@@ -267,18 +199,16 @@ app.get("/callback", (req, res) => {
       // Send the user to the quiz page (Probably a better way to do this)
       res.sendFile("./public/quizPage.html", { root: __dirname });
     })
-    .catch((error) => {
+    .catch(() => {
       console.error("Error getting Tokens:", error);
       res.send(`Error getting Tokens: ${error}`);
     });
 });
 
 // Start the server on port 8888 or whatever port is set in the environment
-app.listen(PORT, () =>
-  console.log(`HTTP Server up. Now go to http://localhost:${PORT}/login in your browser.`)
-);
+app.listen(PORT, () => console.log(`HTTP Server up and running on http://localhost:${PORT}`));
 
-// Function to refresh the access token
+// Function to refresh the access token if needed.
 async function refreshToken() {
   const data = await spotifyApi.refreshAccessToken();
   const access_token = data.body["access_token"];
