@@ -1,0 +1,33 @@
+// General settings
+:root {
+    background-color: #000000;
+    font-size: 62.5%; // Set font size to 10px
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--off-color);
+  }
+  
+// Background animation
+body {
+    background: linear-gradient(-45deg, #ddf039, #e73c7e, #23d5d5, #ab23d5);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+  
+@keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+}
