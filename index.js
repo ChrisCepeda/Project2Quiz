@@ -49,7 +49,7 @@ app.get("/", (req, res) => {
 
 // Create a url endpoint? to later fetch in the frontend
 app.get("/fetchFromSpotify_answer", async (req, res) => {
-  var result = await getSongFromPlaylist();
+  var result = await getSongFromPlaylist(req.query.playlist);
   res.json(result);
 });
 // Get the artist and song from the frontend
@@ -59,11 +59,11 @@ app.get("/fetchFromSpotify_alternatives", async (req, res) => {
   res.json(result);
 });
 
-async function getSongFromPlaylist() {
+async function getSongFromPlaylist(choosenPlaylist) {
   let playlist = [];
   try {
     await spotifyApi
-      .getPlaylistTracks(anotherMusicQuizPlaylist, { limit: 100, offset: 0, fields: "items" })
+      .getPlaylistTracks(choosenPlaylist, { limit: 100, offset: 0, fields: "items" })
       .then((data) => {
         data.body.items.forEach((element) => {
           if (element.track.preview_url === null) return;
@@ -100,6 +100,7 @@ async function getSongsFromSearch(artist, song, id) {
   } catch (error) {
     console.error({ error });
   }
+
   shuffleArray(filteredPlaylist);
   for (let i = 0; i < 3; i++) alternativesArray.push(filteredPlaylist[i]);
   console.log({ alternativesArray });
@@ -180,7 +181,6 @@ app.get("/login", (req, res) => {
 app.get("/callback", (req, res) => {
   const error = req.query.error;
   const code = req.query.code;
-  // const state = req.query.state;
 
   if (error) {
     console.error("Callback Error:", error);
@@ -197,7 +197,7 @@ app.get("/callback", (req, res) => {
       spotifyApi.setAccessToken(access_token);
       spotifyApi.setRefreshToken(refresh_token);
       // Send the user to the quiz page (Probably a better way to do this)
-      res.sendFile("./public/quizPage.html", { root: __dirname });
+      res.sendFile("./public/chooseTheme.html", { root: __dirname });
     })
     .catch(() => {
       console.error("Error getting Tokens:", error);

@@ -1,11 +1,20 @@
 const quizWrapper = document.querySelector(".quiz-container");
+const loader = document.getElementById("loader");
+const game = document.getElementById("game");
+const progressBarFull = document.getElementById("progressBarFull");
+const scoreHud = document.querySelector("#score-display");
+const gameContainer = document.querySelector(".game-container");
+const highscoreContainer = document.querySelector(".highscore-container");
+const startGameBtn = document.querySelectorAll(".start-game");
+let choosenplaylist = "";
+startGameBtn.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    choosenplaylist = btn.dataset.playlist;
+    sessionStorage.setItem("choosenplaylist", choosenplaylist);
+  });
+});
+import { storeAndShowFirestoreData } from "./firstPage.js";
 // Setting to global variables
-let playList = [];
-let index = 0;
-let score = 0;
-let previewSongTime = 30;
-let timer;
-window.history.pushState({}, null, "/");
 // Get the alternatives from the backend and send the artist and song from the answer so we can have some alternatives relative to the song thats playing
 async function getAlternatives(artist, song, id) {
   artist = artist.replace("&", "and");
@@ -15,25 +24,45 @@ async function getAlternatives(artist, song, id) {
 }
 // Get the answer from the backend
 async function getAnswer() {
-  let res = await fetch(`./fetchFromSpotify_answer`);
+  let res = await fetch(`./fetchFromSpotify_answer?playlist=${choosenplaylist}`);
   let data = await res.json();
   return data;
 }
-// Create the alternatives and the answer
+let playList = [];
+let index = 0;
+let score = 0;
+const maxNumberOfQuestions = 5;
+const timeLeft = 10;
+let previewSongTime = timeLeft;
+let timer;
+
+window.history.pushState({}, null, "/");
+
 async function startQuiz() {
-  playList = await getAnswer();
+  choosenplaylist = sessionStorage.getItem("choosenplaylist");
+  playList = await getAnswer(choosenplaylist);
+  // Hide loader AFTER loading in new question
+  game.classList.remove("hidden");
   createListOfAlternatives();
+  loader.classList.add("hidden");
 }
+
+window.onload = startQuiz();
 async function createListOfAlternatives() {
+  //Update the progress bar
+  if (index === maxNumberOfQuestions) {
+    gameOver();
+    return;
+  }
   let alternatives = await getAlternatives(playList[index].artists[0].name, playList[index].name);
-  quizWrapper.innerHTML = `<h1>Name the song:) : Score: ${score}</h1>`;
+  quizWrapper.innerHTML = ``;
   createAlternatives(formatAndErrorHandle(playList[index]));
   alternatives.forEach((item) => createAlternatives(formatAndErrorHandle(item)));
   shuffleAndInitializeCards();
   setTimeout(() => {
     createAudio(playList[index].preview_url);
   }, 500);
-  timer = setInterval(countdownTimerForSongs, 1000);
+  timer = setInterval(countdownTimerForSongs, 10);
 }
 
 function shuffleAndInitializeCards() {
@@ -50,27 +79,30 @@ function intializeAlternativesWithEventlistener() {
 
 function checkIfTheAnswerIsCorrect() {
   let cardToCheck = this;
-  console.log(playList[index]);
-  console.log(cardToCheck.innerText);
   if (playList[index].name + " by " + playList[index].artists[0].name === cardToCheck.innerText) {
     cardToCheck.classList.add("correct");
-    score++;
+    score += 10;
+    scoreHud.innerText = score;
   } else {
     cardToCheck.classList.add("incorrect");
   }
-  index++;
   pauseAudioAndResetCards();
-  setTimeout(createListOfAlternatives, 1500);
 }
 
 function gameOver() {
-  if (index === playList.length) {
-    quizWrapper.innerHTML = `
-    <h1>Game Over</h1>
-    <h2>Your score is: ${score}</h2>
-    <button onclick="window.location.reload()">Play again</button>
-    `;
-  }
+  sessionStorage.setItem("score", score);
+  storeAndShowFirestoreData();
+  gameContainer.innerHTML = "";
+  highscoreContainer.innerHTML = `
+  <div class="container">
+  <div id="highScores" class="flex-center flex-column">
+    <h1 id="finalScore">High Scores</h1>
+    <ul id="highScoresList">
+    </ul>
+    <a href="./chooseTheme.html" class="btn">Go Home</a>
+  </div>
+</div>
+  `;
 }
 
 function pauseAudioAndResetCards() {
@@ -79,7 +111,6 @@ function pauseAudioAndResetCards() {
 }
 function pauseAudioAndgetCurrentTimeInAudio() {
   setTimeout(pauseAudio, 500);
-  stopTimer();
 }
 
 function removeEventListenerFromCards() {
@@ -88,14 +119,17 @@ function removeEventListenerFromCards() {
 }
 
 function countdownTimerForSongs() {
-  previewSongTime--;
+  previewSongTime -= 0.01;
+  progressBarFull.style.width = `${(previewSongTime / 10) * 100}%`;
   if (previewSongTime <= 0) stopTimer();
 }
 
 function stopTimer() {
   clearInterval(timer);
-  previewSongTime = 30;
+  previewSongTime = timeLeft;
   stopVinyls();
+  index++;
+  createListOfAlternatives();
 }
 
 function pauseAudio() {

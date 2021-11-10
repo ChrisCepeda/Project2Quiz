@@ -1,17 +1,24 @@
 // Some sad CSS
-@import "./cards.scss";
+@import "./helpers", "./cards.scss", "./highscore.scss", "./game.scss", "./chooseTheme.scss";
 //Tintins&Christinas CSS
-
+:root {
+  font-size: 62.5%;
+}
 * {
   margin: 0;
   padding: 0;
-  font-family: "Nunito", sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
-  background: linear-gradient(-45deg, #ddf039, #e73c7e, #23d5d5, #ab23d5);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  background: linear-gradient(-45deg, #062c14, #1ed760, #062c14, #117735);
+  background-size: 200% 200%;
+  animation: gradient 20s ease infinite;
+  min-height: 100vh;
+}
+nav {
+  height: 68px;
+  // background-color: #1f804b;
 }
 @keyframes gradient {
   0% {
@@ -26,7 +33,7 @@ body {
 }
 
 h1 {
-  font-family: "Nunito", sans-serif;
+  // font-family: "Nunito", sans-serif;
   font-weight: 500;
   font-size: 1.8em;
 }
@@ -44,7 +51,7 @@ h1 {
   position: relative;
   margin: 6% auto;
   /*margin-top: 10vh;*/
-  background: #fff;
+  // background: #fff;
   padding: 5px;
   border-radius: 10px;
   overflow: hidden;
@@ -53,8 +60,9 @@ h1 {
   width: 220px;
   margin: 35px auto;
   position: relative;
-  box-shadow: 0 0 20px 9px #ff61241f;
+  // box-shadow: 0 0 20px 9px #000000;
   border-radius: 30px;
+  background-color: rgb(22, 22, 22);
 }
 .toggle-btn {
   padding: 10px 30px;
@@ -63,6 +71,7 @@ h1 {
   border: 0;
   outline: none;
   position: relative;
+  color: #fff;
 }
 #btn {
   top: 0;
@@ -76,21 +85,12 @@ h1 {
   font-family: "Nunito", sans-serif;
   font-size: 1rem;
 }
-.social-icons {
-  margin: 30px auto;
-  text-align: center;
-}
-.social-icons img {
-  width: 30px;
-  margin: 0 12px;
-  box-shadow: 0 0 20 px 0 #7f7f7f3d;
-  cursor: pointer;
-}
 .input-group {
-  top: 180px;
+  // top: 180px;
   position: absolute;
   width: 280px;
   transition: 0.5s;
+  color: #fff;
 }
 .input-field {
   width: 100%;
@@ -99,26 +99,33 @@ h1 {
   border-left: 0;
   border-top: 0;
   border-right: 0;
-  border-bottom: 1px solid #999;
+  border-bottom: 1px solid #fff;
   outline: none;
   background: transparent;
+  color: #fff;
+
+  &::placeholder {
+    color: #fff;
+  }
 }
+
 .submit-btn {
   width: 85%;
   padding: 10px 30px;
   cursor: pointer;
   display: block;
-  margin: auto;
+  margin: 2rem auto;
   background: linear-gradient(to right, #1f804b, #23bdc2);
   border: 0;
   outline: none;
   border-radius: 30px;
+  color: #fff;
 }
 .check-box {
   margin: 30px 10px 30px 0;
 }
 span.rememberPassword {
-  color: #777;
+  color: #fff;
   font-size: 0.8rem;
   bottom: 68px;
   position: absolute;
@@ -150,6 +157,29 @@ span.rememberPassword {
   .loggedIncontainer {
     display: none;
   }
+}
+.loggedIncontainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 50%;
+  width: 100%;
+  background-color: rgba($color: #000000, $alpha: 0);
+}
+.login-spotify {
+  border: none;
+  background-color: #1db954;
+  color: white;
+  padding: 1em 2em;
+  border-radius: 2em;
+  font-size: 2em;
+  cursor: pointer;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  text-align: center;
+  width: 20rem;
+  transition: 0.3s;
 }
 
 .hide {

@@ -1,12 +1,28 @@
 // Firebase auth
+const firebaseConfig = {
+  apiKey: "AIzaSyCOdgM7ZJOumY9SU3Jxm5k6qSojlLaGCdg",
+  authDomain: "hitest-1cac8.firebaseapp.com",
+  projectId: "hitest-1cac8",
+  storageBucket: "hitest-1cac8.appspot.com",
+  messagingSenderId: "1050851890616",
+  appId: "1:1050851890616:web:165b84de6f6bd507d46b4d",
+  measurementId: "G-RNY5B67T2Q",
+};
 
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+db.settings({ timestampsInSnapshots: true });
 // Functions regarding firestore storage/retrieval
+sessionStorage.setItem("score", 0);
 
-function storeAndShowFirestoreData() {
+export function storeAndShowFirestoreData() {
   // collector function for storing and showcasing data
+  let score = JSON.parse(sessionStorage.getItem("score"));
   const user = firebase.auth().currentUser.email; //get the current user signed in
   storeScoreInFireStore(user, score); //storing function
-  db.collection("highscore") // getting each docucent/saved score and running a function on each
+  db.collection("highscore")
+    .limit(5)
+    .orderBy("score", "desc") // getting each docucent/saved score and running a function on each
     .get()
     .then((snapshot) => {
       snapshot.forEach((doc) => {
@@ -14,7 +30,7 @@ function storeAndShowFirestoreData() {
       });
     });
 }
-
+let username = "";
 function storeScoreInFireStore(user, score) {
   // storing name and score to firestore
   db.collection("highscore").add({
@@ -25,20 +41,20 @@ function storeScoreInFireStore(user, score) {
 }
 
 function showHighscore(doc) {
+  const highscoreList = document.querySelector("#highScoresList");
   let li = document.createElement("li");
-  //let name = document.createElement("span");
-  let username = document.createElement("span");
+  li.classList.add("high-score");
+  let name = document.createElement("span");
+  // let username = document.createElement("span");
   let score = document.createElement("span");
-  //name.textContent = doc.data().name;
-  username.textContent = doc.data().username + ": ";
+  name.textContent = doc.data().name + ": ";
+  // username.textContent = doc.data().username + ": ";
   score.textContent = doc.data().score + " points";
-  li.setAttribute("data-id", doc.id);
 
-  //li.appendChild(name);
-  li.appendChild(username);
+  li.appendChild(name);
+  // li.appendChild(username);
   li.appendChild(score);
-  highscoreContainer.appendChild(li);
-  highscoreContainer.classList.remove("hide");
+  highscoreList.appendChild(li);
 }
 
 /*
