@@ -9,24 +9,6 @@ const PORT = process.env.PORT || 8888;
 
 // Client details from Spotify Dashboard
 const redirect_uri = "http://localhost:8888/callback";
-// Quiz playlist ID, link to playlist: https://open.spotify.com/playlist/65CuEpxGE1EHYGGyS3XyVR?si=a77d581f4fa94a12
-// Another playlist: https://open.spotify.com/playlist/0hZ9THXyLWxcjp3ZmEHesU?si=8beda6a8196e47c2
-// Lugna favoriter: https://open.spotify.com/playlist/1VmuSeXFwxVX3JmGwFZ2I9?si=e44f40f99f5a4ebd -- Not working???
-// 720p : https://open.spotify.com/playlist/0DB9fMOskowjeJGLyRZ7st?si=8b6b1cd662214e89
-// All out 80s: https://open.spotify.com/playlist/37i9dQZF1DX4UtSsGT1Sbe?si=9dba249da0804dda
-// Some hip hop: https://open.spotify.com/playlist/3WznMJPiYBt79GaKVQbrOY?si=395210c221de439c
-// Just a shit tone of music : https://open.spotify.com/playlist/4U1GUcN3BuiB4IbvpJ4qXH?si=8069712808724810
-// Top 50 global : https://open.spotify.com/playlist/37i9dQZEVXbNG2KDcFcKOF?si=aefa22b8c6444db9
-// Songs i'm having trouble with : https://open.spotify.com/playlist/3ruyDRPnNMOW80mZPVsKRu?si=b6a03668e5ea4c99
-// Probablu going to do this so the user can input a playlist also, so its not hard coded
-const birksPappasquizPlaylistID = "65CuEpxGE1EHYGGyS3XyVR";
-const anotherMusicQuizPlaylist = "0hZ9THXyLWxcjp3ZmEHesU";
-const lugnaFavoriterPlaylist = "1VmuSeXFwxVX3JmGwFZ2I9";
-const birksPlaylist = "0DB9fMOskowjeJGLyRZ7st";
-const allOut80s = "37i9dQZF1DX4UtSsGT1Sbe";
-const hiphop = "3WznMJPiYBt79GaKVQbrOY";
-const bangersByMehler = "4U1GUcN3BuiB4IbvpJ4qXH";
-const top50global = "37i9dQZEVXbNG2KDcFcKOF";
 const songsImHavingTroubleWith = "3ruyDRPnNMOW80mZPVsKRu";
 
 // Tell express to use the sass middleware
@@ -55,7 +37,7 @@ app.get("/fetchFromSpotify_answer", async (req, res) => {
 // Get the artist and song from the frontend
 app.get("/fetchFromSpotify_alternatives", async (req, res) => {
   var result = await getSongsFromSearch(req.query.artist, req.query.song, req.query.id);
-  console.log(req.query.artist);
+  console.log(req.query.id);
   res.json(result);
 });
 
@@ -77,9 +59,7 @@ async function getSongFromPlaylist(choosenPlaylist) {
 }
 
 async function getSongsFromSearch(artist, song, id) {
-  console.log({ artist });
   artist = replaceInString(" and", " &", artist);
-  console.log({ artist });
   let alternativesArray = [];
   let filteredPlaylist = [];
   // console.log({ song });
@@ -89,9 +69,10 @@ async function getSongsFromSearch(artist, song, id) {
     await spotifyApi.searchTracks(artist, { limit: 50, offset: 0 }).then((data) => {
       data.body.tracks.items.forEach((element) => {
         if (
-          !element.name.includes(modifiedSong || song) &&
+          !element.name.toLowerCase().includes(modifiedSong.toLowerCase() || song.toLowerCase()) &&
           element.artists[0].name == artist &&
-          filteredPlaylist.some((e) => e.song === element.name) === false
+          !element.name.includes("Live") &&
+          filteredPlaylist.some((e) => e.name === element.name) === false
         ) {
           filteredPlaylist.push(element);
         }
@@ -100,7 +81,20 @@ async function getSongsFromSearch(artist, song, id) {
   } catch (error) {
     console.error({ error });
   }
-
+  if (filteredPlaylist.length < 3) {
+    moreSongs = await ifSongsFromSearchByArtistDidNotReturnEnough(id);
+    moreSongs.forEach((element) => {
+      console.log(element.name);
+      console.log({ song });
+      console.log({ modifiedSong });
+      if (
+        filteredPlaylist.some((e) => e.name === element.name) === false &&
+        !element.name.toLowerCase().includes(modifiedSong.toLowerCase() || song.toLowerCase())
+      ) {
+        filteredPlaylist.push(element);
+      }
+    });
+  }
   shuffleArray(filteredPlaylist);
   for (let i = 0; i < 3; i++) alternativesArray.push(filteredPlaylist[i]);
   console.log({ alternativesArray });
@@ -112,11 +106,7 @@ async function ifSongsFromSearchByArtistDidNotReturnEnough(artist) {
   try {
     await spotifyApi.getArtistTopTracks(artist, "SE").then((data) => {
       data.body.tracks.forEach((element) => {
-        artistsTop10Tracks.push({
-          song: element.name,
-          image: element.album.images[1].url,
-          artist: element.artists[0].name,
-        });
+        artistsTop10Tracks.push(element);
       });
     });
   } catch (error) {

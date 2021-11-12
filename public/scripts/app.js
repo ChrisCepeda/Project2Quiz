@@ -13,6 +13,7 @@ startGameBtn.forEach((btn) => {
     sessionStorage.setItem("choosenplaylist", choosenplaylist);
   });
 });
+window.onload = startQuiz();
 import { storeAndShowFirestoreData } from "./firstPage.js";
 // Setting to global variables
 // Get the alternatives from the backend and send the artist and song from the answer so we can have some alternatives relative to the song thats playing
@@ -31,7 +32,7 @@ async function getAnswer() {
 let playList = [];
 let index = 0;
 let score = 0;
-const maxNumberOfQuestions = 5;
+const maxNumberOfQuestions = 10;
 const timeLeft = 10;
 let previewSongTime = timeLeft;
 let timer;
@@ -41,20 +42,31 @@ window.history.pushState({}, null, "/");
 async function startQuiz() {
   choosenplaylist = sessionStorage.getItem("choosenplaylist");
   playList = await getAnswer(choosenplaylist);
+  shuffleArray(playList);
   // Hide loader AFTER loading in new question
   game.classList.remove("hidden");
   createListOfAlternatives();
   loader.classList.add("hidden");
 }
 
-window.onload = startQuiz();
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 async function createListOfAlternatives() {
   //Update the progress bar
   if (index === maxNumberOfQuestions) {
     gameOver();
     return;
   }
-  let alternatives = await getAlternatives(playList[index].artists[0].name, playList[index].name);
+  let alternatives = await getAlternatives(
+    playList[index].artists[0].name,
+    playList[index].name,
+    playList[index].artists[0].id
+  );
   quizWrapper.innerHTML = ``;
   createAlternatives(formatAndErrorHandle(playList[index]));
   alternatives.forEach((item) => createAlternatives(formatAndErrorHandle(item)));
@@ -120,7 +132,7 @@ function removeEventListenerFromCards() {
 
 function countdownTimerForSongs() {
   previewSongTime -= 0.01;
-  progressBarFull.style.width = `${(previewSongTime / 10) * 100}%`;
+  progressBarFull.style.width = `${(previewSongTime / maxNumberOfQuestions) * 100}%`;
   if (previewSongTime <= 0) stopTimer();
 }
 

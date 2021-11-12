@@ -9,6 +9,10 @@
   max-width: 100rem;
   margin: 0 auto;
   padding: 2rem;
+
+  @media screen and (max-width: 500px) {
+    padding: 0;
+  }
 }
 
 .container > * {
@@ -50,6 +54,11 @@
   background-color: rgb(22, 22, 22);
   border-radius: 2em;
   border: none;
+
+  @media screen and (max-width: 500px) {
+    width: 10rem;
+    font-size: 1.2rem;
+  }
 }
 
 .btn:hover {

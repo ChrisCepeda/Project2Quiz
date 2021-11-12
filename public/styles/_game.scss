@@ -7,6 +7,11 @@
   width: 600px;
   margin-bottom: 5rem;
   color: #fff;
+
+  @media screen and (max-width: 500px) {
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
 }
 
 .hud-prefix {
@@ -25,6 +30,9 @@
   margin-top: 1.5rem;
   border-radius: 4rem;
   overflow: hidden;
+  @media screen and (max-width: 500px) {
+    height: 2rem;
+  }
 }
 
 #progressBarFull {

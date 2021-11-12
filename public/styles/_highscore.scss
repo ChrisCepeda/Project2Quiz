@@ -8,11 +8,18 @@
   font-weight: 800;
   margin-bottom: 1rem;
   color: #fff;
+  @media screen and (max-width: 500px) {
+    font-size: 2.2rem;
+  }
 }
 
 .high-score {
   font-size: 2.8rem;
   margin-bottom: 0.5rem;
+
+  @media screen and (max-width: 500px) {
+    font-size: 1.4rem;
+  }
 }
 
 .high-score:hover {
