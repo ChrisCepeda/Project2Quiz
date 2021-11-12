@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./styles/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-auth.js"></script>
+  <title>Project-2-Quiz</title>
+</head>
+
+<body>
+  <nav>
+    <a href="./index.html" class="btn">Back</a>
+  </nav>
+  <div class="container">
+    <div id="home" class="flex-center flex-column">
+      <h1 id="theme-heading">Pick a theme</h1>
+      <div id="theme-stage">
+        <a href="./quizPage.html" class="start-game" data-playlist="37i9dQZF1DXb57FjYWz00c">
+          <div class="theme-card">
+            <img class="theme-img" src="./img/hoff.jpg" alt="cover1">
+            <div class="choice-text theme" data-number="1">
+              <h3>80's Bangers</h3>
+              <p class="blurb">You know them, you love them.</p>
+            </div>
+          </div>
+        </a>
+        <a href="./quizPage.html" class="start-game" data-playlist="0INziQf14tWsydCd5EUOf0">
+          <div class="theme-card">
+            <img class="theme-img" src="./img/pacbig.jpg" alt="cover1">
+            <div class="choice-text theme" data-number="1">
+              <h3>Old School Hip-Hop</h3>
+              <p class="blurb">Ain't nothing to f**k with.</p>
+            </div>
+          </div>
+        </a>
+        <a href="./quizPage.html" class="start-game" data-playlist="20LKsiDZd4ALrlihncFcFa">
+          <div class="theme-card">
+            <img class="theme-img" src="./img/5.jpg" alt="cover1">
+            <div class="choice-text theme" data-number="1">
+              <h3>90s Alternative Rock</h3>
+              <p class="blurb">Turn up.</p>
+            </div>
+          </div>
+        </a>
+        <a href="./quizPage.html" class="start-game" data-playlist="37i9dQZF1DWULEW2RfoSCi">
+          <div class="theme-card">
+            <img class="theme-img" src="./img/6.jpg" alt="cover1">
+            <div class="choice-text theme" data-number="1">
+              <h3>70s Soul Classics</h3>
+              <p class="blurb">The hottest soul tracks!</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <script src="./scripts/app.js" type="module"></script>
+  <script type="text/javascript" src="./scripts/vanilla-tilt.js"></script>
+  <script type="text/javascript">
+    VanillaTilt.init(document.querySelectorAll(".theme-card"), {
+      max: 35,
+      speed: 500
+    });
+  </script>
+
+</body>
+
+</html>

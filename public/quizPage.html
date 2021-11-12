@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-auth.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./styles/style.css">
+  <title>Project-2-Quiz</title>
+</head>
+
+<body>
+  <nav>
+
+  </nav>
+  <section class="highscore-container"></section>
+  <section class="game-container">
+    <h1 class="title">Name the song yooooo</h1>
+    <div id="hud">
+      <div id="hud-item">
+        <p class="hud-prefix">Score</p>
+        <h1 class="hud-main-text" id="score-display">0</h1>
+      </div>
+      <div id="hud-item">
+        <p id="progressText" class="hud-prefix">Timer</p>
+        <div id="progressBar">
+          <div id="progressBarFull"></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="quiz-container" id="game">
+      <div id="loader"></div>
+    </div>
+    <div class="audio"></div>
+  </section>
+
+  <!-- <script src="./scripts/firebaseConfig.js" type="module"></script> -->
+  <script src="./scripts/app.js" type="module"></script>
+  <script src="./scripts/firstPage.js" type="module"></script>
+</body>
+
+</html>
