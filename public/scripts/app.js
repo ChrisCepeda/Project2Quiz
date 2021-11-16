@@ -1,3 +1,4 @@
+// Global html elements
 const quizWrapper = document.querySelector(".quiz-container");
 const loader = document.getElementById("loader");
 const game = document.getElementById("game");
@@ -6,14 +7,28 @@ const scoreHud = document.querySelector("#score-display");
 const gameContainer = document.querySelector(".game-container");
 const highscoreContainer = document.querySelector(".highscore-container");
 const startGameBtn = document.querySelectorAll(".start-game");
+
+// Global variables
 let choosenplaylist = "";
+let playList = [];
+let index = 0;
+let score = 0;
+let maxNumberOfQuestions = 10;
+let timeLeft = 10;
+let previewSongTime = timeLeft;
+let timer;
+
+// Choose playlist
 startGameBtn.forEach((btn) => {
   btn.addEventListener("click", () => {
     choosenplaylist = btn.dataset.playlist;
     sessionStorage.setItem("choosenplaylist", choosenplaylist);
   });
 });
+
 window.onload = startQuiz();
+window.history.pushState({}, null, "/");
+
 import { storeAndShowFirestoreData } from "./firstPage.js";
 // Setting to global variables
 // Get the alternatives from the backend and send the artist and song from the answer so we can have some alternatives relative to the song thats playing
@@ -29,15 +44,6 @@ async function getAnswer() {
   let data = await res.json();
   return data;
 }
-let playList = [];
-let index = 0;
-let score = 0;
-const maxNumberOfQuestions = 10;
-const timeLeft = 10;
-let previewSongTime = timeLeft;
-let timer;
-
-window.history.pushState({}, null, "/");
 
 async function startQuiz() {
   choosenplaylist = sessionStorage.getItem("choosenplaylist");
@@ -49,31 +55,21 @@ async function startQuiz() {
   loader.classList.add("hidden");
 }
 
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
 async function createListOfAlternatives() {
   //Update the progress bar
   if (index === maxNumberOfQuestions) {
     gameOver();
     return;
   }
-  let alternatives = await getAlternatives(
-    playList[index].artists[0].name,
-    playList[index].name,
-    playList[index].artists[0].id
-  );
+  let currentSong = playList[index].name;
+  let currentArtist = playList[index].artists[0].name;
+  let currentId = playList[index].id;
+  let alternatives = await getAlternatives(currentArtist, currentSong, currentId);
   quizWrapper.innerHTML = ``;
   createAlternatives(formatAndErrorHandle(playList[index]));
   alternatives.forEach((item) => createAlternatives(formatAndErrorHandle(item)));
   shuffleAndInitializeCards();
-  setTimeout(() => {
-    createAudio(playList[index].preview_url);
-  }, 500);
+  createAudio(playList[index].preview_url);
   timer = setInterval(countdownTimerForSongs, 10);
 }
 
@@ -83,7 +79,7 @@ function shuffleAndInitializeCards() {
 }
 
 function intializeAlternativesWithEventlistener() {
-  var cards = document.querySelectorAll(".card");
+  let cards = document.querySelectorAll(".card");
   cards.forEach((card) => {
     card.addEventListener("click", checkIfTheAnswerIsCorrect);
   });
@@ -119,36 +115,31 @@ function gameOver() {
 
 function pauseAudioAndResetCards() {
   removeEventListenerFromCards();
-  pauseAudioAndgetCurrentTimeInAudio();
-}
-function pauseAudioAndgetCurrentTimeInAudio() {
-  setTimeout(pauseAudio, 500);
+  stopTimer();
 }
 
 function removeEventListenerFromCards() {
-  var cards = document.querySelectorAll(".card");
+  let cards = document.querySelectorAll(".card");
   cards.forEach((card) => card.removeEventListener("click", checkIfTheAnswerIsCorrect));
 }
 
 function countdownTimerForSongs() {
   previewSongTime -= 0.01;
   progressBarFull.style.width = `${(previewSongTime / maxNumberOfQuestions) * 100}%`;
+  if (maxNumberOfQuestions === index) return;
   if (previewSongTime <= 0) stopTimer();
 }
 
 function stopTimer() {
   clearInterval(timer);
   previewSongTime = timeLeft;
+  pauseAudio();
   stopVinyls();
   index++;
-  createListOfAlternatives();
+  setTimeout(() => createListOfAlternatives(), 500);
 }
 
 function pauseAudio() {
-  let currentTime = document.querySelector("#audio").currentTime;
-  stopTimer();
-  // Maybe do something with the currentTime and scoring?
-  console.log("Song was paused on : ", currentTime);
   document.querySelector("#audio").pause();
 }
 
@@ -207,4 +198,12 @@ function shuffleCards() {
     let ramdomPos = Math.floor(Math.random() * 4);
     card.style.order = ramdomPos;
   });
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }

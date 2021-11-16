@@ -37,7 +37,6 @@ app.get("/fetchFromSpotify_answer", async (req, res) => {
 // Get the artist and song from the frontend
 app.get("/fetchFromSpotify_alternatives", async (req, res) => {
   var result = await getSongsFromSearch(req.query.artist, req.query.song, req.query.id);
-  console.log(req.query.id);
   res.json(result);
 });
 
@@ -62,7 +61,6 @@ async function getSongsFromSearch(artist, song, id) {
   artist = replaceInString(" and", " &", artist);
   let alternativesArray = [];
   let filteredPlaylist = [];
-  // console.log({ song });
   let modifiedSong = removeCharactersAfterCharacterInString(song, " -");
 
   try {
@@ -84,9 +82,6 @@ async function getSongsFromSearch(artist, song, id) {
   if (filteredPlaylist.length < 3) {
     moreSongs = await ifSongsFromSearchByArtistDidNotReturnEnough(id);
     moreSongs.forEach((element) => {
-      console.log(element.name);
-      console.log({ song });
-      console.log({ modifiedSong });
       if (
         filteredPlaylist.some((e) => e.name === element.name) === false &&
         !element.name.toLowerCase().includes(modifiedSong.toLowerCase() || song.toLowerCase())
@@ -97,7 +92,6 @@ async function getSongsFromSearch(artist, song, id) {
   }
   shuffleArray(filteredPlaylist);
   for (let i = 0; i < 3; i++) alternativesArray.push(filteredPlaylist[i]);
-  console.log({ alternativesArray });
   return alternativesArray;
 }
 
