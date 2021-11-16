@@ -61,9 +61,9 @@ Firebase was used to easily store and retrieve the data and to authenticate user
 - Trello
 - Spotify API
 
-### :woman-woman-boy-boy: Contributors:
+### :family_woman_woman_boy_boy: Contributors:
 
-[Birk Kensén](https://github.com/ChrisCepeda)
-[Johan Klingström](https://github.com/maybelittlebitjk)
-[Tintin Hamrin](https://github.com/TintinHamrin)
-[Christina Cepeda](https://github.com/ChrisCepeda)
+- [Birk Kensén](https://github.com/ChrisCepeda)
+- [Johan Klingström](https://github.com/maybelittlebitjk)
+- [Tintin Hamrin](https://github.com/TintinHamrin)
+- [Christina Cepeda](https://github.com/ChrisCepeda)
